@@ -1,0 +1,921 @@
+# *** 0 *** 2003-12-01 *** My Own Build System '0' script ;))
+#
+# Copyright (C) 2002,03 Raúl Núñez de Arenas Coronado
+# Report bugs to Raúl Núñez de Arenas Coronado <raul@pleyades.net>
+#
+#       This program is free software; you can redistribute it and/or
+#        modify it under the terms of the GNU General Public License
+#               as published by the Free Software Foundation;
+#                     either version 2 of the License,
+#                  or (at your option) any later version.
+#
+#      This program is distributed in the hope that it will be useful,
+#        but WITHOUT ANY WARRANTY; without even the implied warranty
+#          of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#           See the GNU General Public License for more details.
+#
+#      You should have received a copy of the GNU General Public License
+#             ('GPL') along with this program; if not, write to:
+#
+#                       Free Software Foundation, Inc.
+#                         59 Temple Place, Suite 330
+#                         Boston, MA 02111-1307  USA
+#
+########################################
+#   Add your name and email address below, between the double quotes.
+########################################
+AUTHOR="David Gómez <david@pleyades.net>"
+
+########################################
+#   IDIRS: A *space separated* list of additional header search dirs.
+#   LDIRS: A *space separated* list of additional library or .o search dirs.
+#   LIBES: A *space separated* list of additional library names to link,
+########################################
+IDIRS=""
+LDIRS=""
+LIBES=""
+
+########################################
+#   CFLAGS: Additional flags for the GCC.
+#  LDFLAGS: Additional flags for the linker.
+########################################
+ CFLAGS=""
+LDFLAGS=""
+
+########################################
+#  WARNINGS: Additional warning flags for GCC.
+########################################
+WARNINGS="-Wall -W"
+
+## Add here any variable you want, but beware, it may be unsupported ;))))
+
+#                  ########################################
+#
+#                   DO NOT TOUCH ANYTHING BELOW THIS POINT
+#              EXCEPT IF YOU HAVE READ THE ENTIRE DOCUMENTATION
+#                         AND KNOW WHAT ARE YOU DOING
+#        OR NEITHER THE SCRIPT NOR THE MAKEFILE WILL WORK AS EXPECTED.
+#
+#                  ########################################
+
+
+help() {
+cat << EOF
+Usage: ./0 [options] | --help | --xhelp | --version
+
+Options: (defaults are in brackets after option description)
+  --prefix=PREFIX       Installation prefix is 'PREFIX' [/usr/local]
+  --bindir=DIR          Place user binaries in 'DIR' [PREFIX/bin]
+  --sbindir=DIR         Place system binaries in 'DIR' [PREFIX/sbin]
+  --confdir=DIR         Place configuration files in 'DIR' [PREFIX/etc]
+  --datadir=DIR         Place static data files in 'DIR' [PREFIX/lib/PROJECT]
+  --libdir=DIR          Place libraries in 'DIR' [PREFIX/lib]
+  --includedir=DIR      Place header files in 'DIR' [PREFIX/include/PROJECT]
+  --mandir=DIR          Place manpages in 'DIR' [PREFIX/man]
+  --infodir=DIR         Place info files in 'DIR' [PREFIX/info]
+  --docdir=DIR          Place misc documentation in 'DIR' [PREFIX/doc/PROJECT]
+
+  --enable-FEATURE      Enable package feature 'FEATURE'
+  --disable-FEATURE     Disable package feature 'FEATURE'
+  --with-OPTION=VALUE   Set package option 'OPTION' to value 'VALUE'
+
+Report bugs to Raúl Núñez de Arenas Coronado <raul@pleyades.net>
+EOF
+exit 0
+}
+
+
+xhelp() {
+cat << EOF
+Usage: ./0 [options] | --help | --xhelp | --version
+
+These are special options, use them at your own risk.
+Be sure of reading the MOBS instructions if you want use them.
+
+  --cflags=FLAGS        Pass 'FLAGS' flags to compiler.
+  --ldflags=FLAGS       Pass 'FLAGS' flags to linker.
+
+  --warnings=WARNINGS   Enable GCC warnings 'WARNINGS'.
+  --werror              Turn all warnings into errors.
+  
+  --debug               Build the package with debugging info.
+  --profile             Build the package with profiling info.
+
+Report bugs to Raúl Núñez de Arenas Coronado <raul@pleyades.net>
+EOF
+exit 0
+}
+
+
+version() {
+cat << EOF
+This is the '0' script from MOBS 1.0
+Report bugs to Raúl Núñez de Arenas Coronado <raul@pleyades.net>
+
+Copyright (C) Raúl Núñez de Arenas Coronado <raul@pleyades.net>
+EOF
+exit 0
+}
+
+
+# Generate and dump 'mobs.h'
+mobs_h() {
+cat << EOF
+/* *** mobs.h *** MOBS helpers for Linux development
+
+Copyright (C) 2002,03 Raúl Núñez de Arenas Coronado
+
+        This program is free software; you can redistribute it and/or
+         modify it under the terms of the GNU General Public License
+                as published by the Free Software Foundation;
+                      either version 2 of the License,
+                   or (at your option) any later version.
+
+       This program is distributed in the hope that it will be useful,
+         but WITHOUT ANY WARRANTY; without even the implied warranty
+           of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+            See the GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+             ('GPL') along with this program; if not, write to:
+
+                       Free Software Foundation, Inc.
+                         59 Temple Place, Suite 330
+                         Boston, MA 02111-1307  USA
+*/
+#ifndef __MOBS_H__
+#define __MOBS_H__
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#endif
+
+
+/*
+    If this debug unit is used with our Makefile, the macro OBJNAME is
+defined and set to the module (object file) name. "*" is a sane default.
+*/
+#ifndef OBJNAME
+#define OBJNAME "*"
+#endif
+
+
+/*
+    This macro just stringifies its argument, no matter if it
+is a literal or another macro. It's because of that it needs
+the additional level of indirection. Only 'STRFY()' is meant
+to be used. The other macro is just a helper.
+*/
+#ifndef STRFY
+#define STRFY(mobs_expression) __MOBS_H_STRFY(mobs_expression)
+    #ifndef __MOBS_H_STRFY
+    #define __MOBS_H_STRFY(mobs_expression) #mobs_expression
+    #endif
+#endif
+
+
+/* This expands to a bug report notice string */
+#ifndef BUG_REPORT
+#define BUG_REPORT "Report bugs to ${AUTHOR}"
+#endif
+
+
+/*
+    This macro does the same that 'BUG()', but with the semantics of
+the C9x 'assert()' macro, and ignoring the value of 'errno'. The main
+differences between 'assert()' and 'ASSERT()' may be the verbosity of
+the latter and the format of the messages. Moreover, 'ASSERT()' cannot
+be evaluated: take this into account when using it. A trace mark is
+also printed for helping to locate this assertion.
+
+    Use this macro to make assertions. Quite easy, isn't it? ;)))
+*/
+#undef ASSERT
+#ifndef NDEBUG
+#define ASSERT(mobs_expr) if (!(mobs_expr)) {\\
+    fputs("\\n>>>\\n", stderr);\\
+    fprintf(stderr, "ASSERTION FAILED, process %d aborting...\\n", getpid());\\
+    fprintf(stderr, "Assertion \\"(%s)\\" failed at %s()@%s<%d>\\n", #mobs_expr, __func__, __FILE__, __LINE__);\\
+    fputs(BUG_REPORT "\\n", stderr);\\
+    fflush(stderr);\\
+    abort();\\
+}
+#else
+#define ASSERT(mobs_expr)
+#endif
+
+
+
+/* This is a helper function to prettyprint the program name */
+#ifndef __MOBS_progname
+#define __MOBS_progname
+static inline const char *progname (const char *);
+static inline const char *progname (const char *mobs_string) {
+    char *mobs_where=NULL;
+    
+    ASSERT(mobs_string != NULL);
+
+    mobs_where=strrchr(mobs_string, '/');
+    return mobs_where?mobs_where+1:mobs_string;
+}
+#endif
+
+
+/* This is a helper macro to prettyprint the version output */
+#ifndef SHOW_VERSION
+#define SHOW_VERSION(mobs_string) do {\\
+    const char *mobs_whoami=mobs_string ? progname(mobs_string) : OBJNAME;\\
+    fputs(mobs_whoami, stdout);\\
+    if (strcasecmp(mobs_whoami, "${PROJECT}")) fputs(" (${PROJECT})", stdout);\\
+    fputs(" version ${VERSION}\\n", stdout);\\
+    fputs(BUG_REPORT "\\n\\n", stdout);\\
+    fputs("Copyright (C) ${AUTHOR}\\n", stdout);\\
+    fflush(stdout);\\
+} while(0)
+#endif
+
+
+/* This one is pretty large ;))). The GPL disclaimer, just in case... */
+#ifndef GPL_DISCLAIMER
+#define GPL_DISCLAIMER(mobs_string) do {\\
+    const char *mobs_whoami= mobs_string ? progname(mobs_string) : "This program";\\
+    if (strcasecmp(mobs_whoami, "${PROJECT}")) fprintf(stdout, "%s is part of ${PROJECT}-${VERSION}\\n\\n", mobs_whoami);\\
+    fprintf(stdout, "%s is free software;\\n", mobs_whoami);\\
+    fputs("you can redistribute it and/or modify it under the terms of the\\n", stdout);\\
+    fputs("GNU General Public License as published by the Free Software Foundation;\\n", stdout);\\
+    fputs("either version 2 of the License, or (at your option) any later version.\\n", stdout);\\
+    fputs("\\n", stdout);\\
+    fprintf(stdout, "%s is distributed in the hope that it will be useful,\\n", mobs_whoami);\\
+    fputs("but WITHOUT ANY WARRANTY; without even the implied warranty\\n", stdout);\\
+    fputs("of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\\n", stdout);\\
+    fputs("See the GNU General Public License for more details.\\n", stdout);\\
+    fputs("\\n", stdout);\\
+    fputs("You should have received a copy of the GNU General Public License\\n", stdout);\\
+    fputs("('GPL') along with this program; if not, write to:\\n", stdout);\\
+    fputs("\tFree Software Foundation, Inc.\\n", stdout);\\
+    fputs("\t59 Temple Place, Suite 330\\n", stdout);\\
+    fputs("\tBoston, MA 02111-1307  USA\\n", stdout);\\
+    fflush(stdout);\\
+} while(0)
+#endif
+
+
+
+/*
+    This function makes the program die nicely with 'EXIT_FAILURE',
+outputting a formatted message to 'stderr', followed by '\\n'.
+
+    By now there is no further information in the output message.
+*/
+#ifndef __MOBS_die
+#define __MOBS_die
+static inline void die (const char *, ...);
+static inline void die (const char *mobs_format, ...) {
+
+    va_list mobs_args;
+
+    ASSERT(mobs_format);
+    
+    va_start(mobs_args, mobs_format);
+    vfprintf(stderr, mobs_format, mobs_args);
+    va_end(mobs_args);
+
+    fputs("\\n", stderr);
+    fflush(stderr);
+
+    exit(EXIT_FAILURE);
+}
+#endif
+
+
+/*
+    This macro logs an internal error and aborts.
+
+    Use this to report *impossible* error conditions, that is, failed
+assertions (consider using 'ASSERT()' instead for a more classical
+semantics). It's not intended to produce information useful to the user.
+
+    It prints the 'errno' value (only if nonzero), its associated message
+and a trace mark, but the caller must take into account that this information
+is not always meaningful, specially the trace mark.
+
+    Since BUG's occur in production releases, this is unconditionally defined
+in order to help the users on sending bug reports with good information ;)
+It outputs the project name and version for filling the bug report :)
+*/
+#ifndef BUG
+#define BUG() do {\\
+    fputs("\\n>>>\\n", stderr);\\
+    fprintf(stderr, "INTERNAL ERROR, process %d aborting...\\n", getpid());\\
+    fputs(BUG_REPORT "\\n", stderr);\\
+    fputs("Include the information below in your bug report, please O:)\\n", stderr);\\
+    if (errno > 0) fprintf(stderr, "<%d> (%s)\\n", errno, strerror(errno));\\
+    else           fputs("(Undefined) This is bad, dude...\\n", stderr);\\
+    fprintf(stderr, "${PROJECT}-${VERSION} ("OBJNAME") %s()@%s<%d>\\n", __func__, __FILE__, __LINE__);\\
+    fflush(stderr);\\
+    abort();\\
+} while (0)
+#endif
+
+
+/*
+    This function shows the message (the format string, you know...)
+together with information about the current 'errno' value (strerror...)
+Just for convenience... The actual format may change...
+*/
+#ifndef __MOBS_bang
+#define __MOBS_bang
+static inline void bang (const char *, ...);
+static inline void bang (const char *mobs_format, ...) {
+
+    va_list mobs_args;
+    int mobs_errno=errno;
+
+    ASSERT(mobs_format);
+
+    va_start(mobs_args, mobs_format);
+    vfprintf(stderr, mobs_format, mobs_args);
+    va_end(mobs_args);
+
+    fprintf(stderr, "\\nerrno: <%d> %s\\n", errno, errno?strerror(errno):"Undefined value!");
+    fflush(stderr);
+
+    errno=mobs_errno;
+}
+#endif
+
+
+/*
+    This function outputs a formatted string as specified by 'format', but
+preceeded by the module name and PID, followed by a '\\n'.
+
+    Please note that there is no way of testing whether the arguments are
+correct or meaningful according with 'format'. Double check the format
+string and the parameters, since 'SAY()' will silently fail and fuck up
+your code if you don't use it correctly ;)))))
+
+    Use this function to watch variables and the like. If you just want to
+trace code use the 'T' macro instead. This is useful too if you want to say
+something before 'BUG()'.
+
+    Please note that if 'NDEBUG' is defined, the funcion does nothing, and
+that the 'T' macro is really an alias to 'SAY()'.
+
+    'errno' is guaranteed not to change.
+*/
+#undef SAY
+#ifndef NDEBUG
+#define SAY(mobs_format,...) do {\\
+    int mobs_errno=errno;\\
+    fprintf(stderr, "%s [%d] ", OBJNAME, getpid());\\
+    if (mobs_format) fprintf(stderr, mobs_format, ##__VA_ARGS__);\\
+    fputs("\\n", stderr);\\
+    fflush(stderr);\\
+    errno=mobs_errno;\\
+} while (0)
+#else
+#define SAY(mobs_format,...)
+#endif
+#undef T
+#define T() SAY("%s()@%s<%d>", __func__, __FILE__, __LINE__)
+
+EOF
+}
+
+
+
+# Generate the Makefile
+Makefile() {
+#   Well, I must admit that the following lines are mostly a mess.
+# This is for making this script self-contained, so...
+#
+#   Fortunately you don't need to understand them to use them ;))
+cat << EOF > Makefile
+# *** Makefile *** Generated Makefile, PLEASE DON'T EDIT.
+#
+# Copyright (C) 2002,03 Raúl Núñez de Arenas Coronado
+#
+#        This program is free software; you can redistribute it and/or
+#         modify it under the terms of the GNU General Public License
+#                as published by the Free Software Foundation;
+#                      either version 2 of the License,
+#                   or (at your option) any later version.
+#
+#      This program is distributed in the hope that it will be useful,
+#        but WITHOUT ANY WARRANTY; without even the implied warranty
+#          of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#           See the GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#            ('GPL') along with this program; if not, write to:
+#
+#                      Free Software Foundation, Inc.
+#                        59 Temple Place, Suite 330
+#                        Boston, MA 02111-1307  USA
+
+.PHONY: all install help clean
+.DELETE_ON_ERROR:
+.SECONDARY:
+.SUFFIXES:
+.DEFAULT:;@:
+
+
+# Convenience variables
+override GOALS=
+override XDEFS=-DCONFDIR="\"${CONFDIR}\"" -DDATADIR="\"${DATADIR}\"" $XDEFS
+override OBJECTS=\$(sort \$(patsubst %.c,%.o,\$(wildcard src/*.c lib/*.c)))
+override DEPENDS=\$(sort \$(patsubst %.c,%.d,\$(wildcard src/*.c lib/*.c bin/*.c sbin/*.c)))
+
+
+# Goals to build
+override GOALS+=\$(if \$(filter src/%.o,\$(OBJECTS)),src/library.a)
+override GOALS+=\$(if \$(filter lib/%.o,\$(OBJECTS)),lib/lib${PROJECT}.a)
+override GOALS+=\$(if \$(filter lib/%.o,\$(OBJECTS)),lib/lib${PROJECT}.so)
+override GOALS+=\$(basename \$(wildcard bin/*.c sbin/*.c))
+
+
+# Maybe we have renamed the project directory...
+ifneq "\$(shell pwd)" "$PWD"
+all:
+	@touch 0
+	@\$(MAKE) --no-print-directory
+else
+all: \$(GOALS)
+endif
+
+#   This function installs files to their proper location (just *files*),
+# logging the names of those installed files in the process... Please note
+# that NO GLOBBING is performed in the list of installed files...
+# \$(1) are the file names.
+# \$(2) is the destination directory.
+# \$(3) are the file permissions.
+install_files={ \\
+for file in . \$(1);\\
+do [ ! "\$\$file" = "." -a -f "\$\$file" -a -r "\$\$file" ] && {\\
+	cp -f "\$\$file" "\$(2)" > /dev/null 2>&1 || {\\
+		printf -- "*** Couldn't install file \"\$\$file\", aborting.\\n";\\
+		exit 1;\\
+	};\\
+	chmod \$(3) "\$(2)\`basename "\$\$file"\`" > /dev/null 2>&1 || {\\
+		printf -- "*** Couldn't change permissions of file \"\$\$file\", aborting.\\n";\\
+		exit 1;\\
+	};\\
+	printf -- "\$(2)\`basename "\$\$file"\`\\n";\\
+} done; true;}
+
+
+# This function creates installation directories.
+# \$(1) is the directory you want to create.
+makedir={ [ -z "\$(1)" ] || \\
+mkdir -m 755 -p "\$(1)" > /dev/null 2>&1 || {\\
+	printf -- "*** Cannot create directory \"\$(1)\", aborting...\\n";\\
+	exit 1;\\
+};}
+	
+
+install: all
+	@rmdir * > /dev/null 2>&1 ; true
+	@\$(call makedir,$PREFIX)
+	@\$(call makedir,$BINDIR)
+	@\$(call makedir,$SBINDIR)
+	@\$(call makedir,$LIBDIR)
+	@\$(call makedir,${MANDIR}man1/)
+	@\$(call makedir,${MANDIR}man3/)
+	@\$(call makedir,${MANDIR}man5/)
+	@\$(call makedir,${MANDIR}man6/)
+	@\$(call makedir,${MANDIR}man8/)
+	@\$(call makedir,$INFODIR)
+	@\$(call makedir,$DOCDIR)
+	@\$(call makedir,$CONFDIR)
+	@\$(call makedir,$DATADIR)
+	@\$(call makedir,$INCLUDEDIR)
+	@\$(call install_files,\$(filter bin/%,\$(GOALS)),$BINDIR,555)
+	@\$(call install_files,\$(filter sbin/%,\$(GOALS)),$SBINDIR,555)
+	@\$(call install_files,\$(wildcard man/*.1),${MANDIR}man1/,444)
+	@\$(call install_files,\$(wildcard man/*.3),${MANDIR}man3/,444)
+	@\$(call install_files,\$(wildcard man/*.5),${MANDIR}man5/,444)
+	@\$(call install_files,\$(wildcard man/*.6),${MANDIR}man6/,444)
+	@\$(call install_files,\$(wildcard man/*.8),${MANDIR}man8/,444)
+	@\$(call install_files,\$(wildcard info/*),$INFODIR,444)
+	@\$(foreach item,\$(wildcard doc/*),\\
+	if [ -d "\$(item)" ] ;\\
+	then\\
+		\$(call makedir,$DOCDIR\$(notdir \$(item)));\\
+		\$(call install_files,\$(wildcard \$(item)/*),$DOCDIR\$(notdir \$(item))/,444);\\
+	else\\
+		\$(call install_files,\$(item),$DOCDIR,444);\\
+	fi;)
+	@\$(foreach item,\$(wildcard data/*),\\
+	if [ -d "\$(item)" ] ;\\
+	then\\
+		\$(call makedir,$DATADIR\$(notdir \$(item)));\\
+		\$(call install_files,\$(wildcard \$(item)/*),$DATADIR\$(notdir \$(item))/,444);\\
+	else\\
+		\$(call install_files,\$(item),$DATADIR,444);\\
+	fi;)
+	@\$(call install_files,\$(wildcard lib/*.h),$INCLUDEDIR,444)
+	@\$(call install_files,lib/lib${PROJECT}.a,$LIBDIR,444)
+	@\$(call install_files,lib/lib${PROJECT}.so,$LIBDIR,555)
+	@if [ -e "${LIBDIR}lib${PROJECT}.so" ] ;\\
+	then\\
+		ln -sf "${LIBDIR}lib${PROJECT}.so" "${LIBDIR}lib${PROJECT}.so.$RELEASE";\\
+		printf -- "${LIBDIR}lib${PROJECT}.so.$RELEASE\\n"; true;\\
+	fi
+	@for configfile in conf/*;\\
+	do \\
+		configfile=\`basename "\$\$configfile"\`;\\
+		[ -f "${CONFDIR}\$\$configfile" ] && mv -f "${CONFDIR}\$\$configfile" "${CONFDIR}\$\${configfile}~" > /dev/null 2>&1;\\
+	done ; true
+	@\$(call install_files,\$(wildcard conf/*),$CONFDIR,644)
+	@rmdir -p \\
+		"$PREFIX" "$BINDIR" "$SBINDIR" \\
+		"${MANDIR}*" "$MANDIR" "$INFODIR" "$DOCDIR" \\
+		"$CONFDIR" "$DATADIR" "$LIBDIR" "$INCLUDEDIR" \\
+		> /dev/null 2>&1 || true
+
+
+help:
+	@printf -- "\\n"
+	@printf -- " Run the command 'make <target>' for doing what you want ;)\\n"
+	@printf -- " Those are the available make targets (default is 'all'):\\n"
+	@printf -- "\\n"
+	@printf -- "       all - Builds the package\\n"
+	@printf -- "   install - Installs the package (building if necessary)\\n"
+	@printf -- "     clean - Cleans the build tree\\n"
+	@printf -- " distclean - Cleans the build tree for distribution\\n"
+	@printf -- "      help - Shows this help\\n"
+	@printf -- "\\n"
+
+
+clean:
+	@printf -- "Removing core files... " >&2 ; rm -f core bin/core sbin/core src/core > /dev/null 2>&1 ; printf -- "done.\\n" >&2
+	@printf -- "Removing object files... "  >&2 ; rm -f \$(OBJECTS) bin/*.o sbin/*.o > /dev/null 2>&1 ; printf -- "done.\\n" >&2
+	@printf -- "Removing project goals and dependencies... "  >&2 ; rm -f \$(GOALS) \$(DEPENDS) > /dev/null 2>&1 ; printf -- "done.\\n" >&2
+
+distclean: clean
+	@printf -- "Removing generated files... "  >&2 ; rm -f Makefile mobs.h  > /dev/null 2>&1 ; printf -- "done.\\n" >&2 ; true
+	@printf -- "Removing empty directories... "  >&2 ; rmdir *  > /dev/null 2>&1 ; printf -- "done.\\n" >&2 ; true
+
+# Clean and modify some variables
+override IDIRS:=\$(sort \$(filter-out -I%,$IDIRS))
+override IDIRS:=\$(patsubst %,-I%,src lib bin sbin . - \$(IDIRS))
+override LDIRS:=\$(sort \$(filter-out -L%,$LDIRS))
+override LDIRS:=\$(patsubst %,-L%,\$(LDIRS))
+override LIBES:=\$(sort \$(filter lib%,$LIBES))
+override LIBES:=\$(patsubst lib%,-l%,\$(LIBES))
+
+
+
+## Flags ##
+override CFLAGS=
+override CFLAGS+=\$(IDIRS) \$(XDEFS) $CFLAGS $PROFILE
+override CFLAGS+=\$(sort $WARNINGS) $WERROR $DEBUG
+override CFLAGS+=-DPROJECT=\"${PROJECT}\" -DVERSION=\"${VERSION}\"
+override LDFLAGS=\$(LDIRS) \$(LIBES) $STRIP $LDFLAGS $PROFILE
+
+
+## Implicit rules
+lib/%.o: lib/%.c lib/%.d Makefile
+	@printf -- "Compiling library object '\$@'\\n" >&2
+	@rm "lib/\$*.d" > /dev/null 2>&1 ; true
+	@DEPENDENCIES_OUTPUT="lib/\$*.d \$@" $GCC \$(CFLAGS) -fPIC -DPIC -DOBJNAME=\"\$(basename \$(notdir \$@))\" -c -o \$@ \$<
+
+%.o: %.c %.d Makefile
+	@printf -- "Compiling object '\$@'\\n" >&2
+	@rm "\$*.d" > /dev/null 2>&1 ; true
+	@DEPENDENCIES_OUTPUT="\$*.d \$@" $GCC \$(CFLAGS) -DOBJNAME=\"\$(basename \$(notdir \$@))\" -c -o \$@ \$<
+
+%: %.o \$(filter %.a,\$(GOALS))
+	@printf -- "Linking binary '\$@'\\n" >&2
+	@$GCC \$(LDFLAGS) -o \$@ \$^
+
+src/library.a: \$(filter src/%,\$(OBJECTS))
+	@printf -- "Creating package private library\\n" >&2
+	@$AR rcsu \$@ \$^
+
+lib/lib${PROJECT}.a: \$(filter lib/%,\$(OBJECTS))
+	@printf -- "Creating static library '\$(notdir \$@)'\\n" >&2
+	@$AR rcsu \$@ \$^
+
+lib/lib${PROJECT}.so: \$(filter lib/%,\$(OBJECTS))
+	@printf -- "Creating shared library '\$(notdir \$@)'\\n" >&2
+	@$GCC \$(LDFLAGS) -o \$@ -shared -Wl,-soname -Wl,lib${PROJECT}.so.$RELEASE \$^
+
+Makefile: 0
+	@printf -- "Regenerating Makefile... " >&2
+	@$CMDLINE > /dev/null 2>&1
+	@printf -- "done.\\n" >&2
+
+## Dependencies
+ifneq (\$(DEPENDS),)
+-include \$(DEPENDS)
+endif
+
+EOF
+}
+
+
+
+
+########################################
+#   Here starts the code
+########################################
+
+# This function tries to find a binary in the $PATH
+findbinary() {
+    dirlist="":$PATH:
+    directory=
+
+    printf -- "Checking for $1... "
+
+    while [ -n "$dirlist" ]
+    do
+        directory="${dirlist%%:*}"
+        dirlist="${dirlist#*:}"
+        [ -x "$directory"/"$2" ] && {
+            printf -- "found '$directory/$2'\n"
+            FOUND_BINARY="$directory/$2"
+            return 0
+        }
+    done
+    printf -- "*** Cannot find $1, shagit!...\n"
+    exit 1
+}
+
+
+trap "" QUIT
+trap "rm -f Makefile mobs.h; exit 1" HUP INT TERM
+
+# Ensure our name is '0'
+[ "x${0##*/}x" = "x0x" ] || {
+    printf -- "*** I told you that  THIS  SCRIPT  CANNOT  BE  RENAMED!\n"
+    printf -- "*** Should I better try other languages or a treat maybe?\n"
+    exit 1
+}
+
+# Check for 'special' parameters
+for parameter
+do
+    [ "x$parameter" = "x--help" ] && help
+    [ "x$parameter" = "x--xhelp" ] && xhelp
+    [ "x$parameter" = "x--version" ] && version
+done
+
+
+# Check for the MOBS identity
+[ -z "$AUTHOR" ] && {
+    printf -- "*** You *MUST* edit the AUTHOR variable in this script.\n"
+    exit 1
+}
+
+# Ensure we are on the proper directory
+WORKDIR="${0%/*}"
+WORKDIR="${WORKDIR:-.}"
+printf -- "Changing to directory '$WORKDIR', where package resides.\n"
+cd "$WORKDIR"
+
+
+[ -w . ] || {
+    printf -- "*** Cannot write to current directory, what's up?\n"
+    exit 1
+}
+
+
+# The allowed charset for names...
+ASCIICHARS="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+
+# Compute version strings
+printf -- "Computing version identification... "
+PROJECT="$PWD"
+# Strip the directory part and validate
+PROJECT="${PROJECT##*/}"
+expr "$PROJECT" : "[0-9]*[${ASCIICHARS}][-_.${ASCIICHARS}0-9]*$" > /dev/null || {
+    printf -- "oops!\n";
+    printf -- "*** '%s' is not a valid project name!\n" "$PROJECT";
+    exit 1;
+}
+# Strip the version code and store the project name in $PROJECT
+RELEASE="$PROJECT"
+PROJECT="${PROJECT%%-*}"
+# Build the version code. It's simpler than it seems ;))
+RELEASE="${RELEASE##${PROJECT}}"
+RELEASE="${RELEASE#-}"
+PATCHLEVEL="$RELEASE"
+RELEASE="${RELEASE%%.*}"
+RELEASE="${RELEASE:-0}"
+PATCHLEVEL="${PATCHLEVEL##${RELEASE}}"
+PATCHLEVEL="${PATCHLEVEL#.}"
+PATCHLEVEL="${PATCHLEVEL:-0}"
+VERSION="$RELEASE.$PATCHLEVEL"
+printf -- "got '$PROJECT-$VERSION'.\n"
+printf -- "\tRelease '$RELEASE', patch level '$PATCHLEVEL'.\n"
+
+[ "x$PROJECT" = "xMOBS" ] && {
+    printf -- "*** We are MOBS, refuse to run...\n"
+    exit 1
+}
+
+# Some default values
+XDEFS=""
+DEBUG="-DNDEBUG -UTEST -O2"
+STRIP="-s"
+PROFILE=""
+WERROR=
+
+# For building makefile-regeneration command line.
+CMDLINE=$0
+
+# Evaluate arguments
+for parameter
+do
+    # Build correctly quoted command line
+    CMDLINE="$CMDLINE \"$parameter\""
+
+    # Separate option and argument
+    option=${parameter%\=*}
+    argument="${parameter##$option}"
+    argument="${argument##*\=}"
+    
+    case "$option" in
+        --prefix) PREFIX="$argument" ;;
+        --bindir) BINDIR="$argument" ;;
+        --sbindir) SBINDIR="$argument" ;;
+        --confdir) CONFDIR="$argument" ;;
+        --datadir) DATADIR="$argument" ;;
+        --libdir) LIBDIR="$argument" ;;
+        --includedir) INCLUDEDIR="$argument" ;;
+        --mandir) MANDIR="$argument" ;;
+        --infodir) INFODIR="$argument" ;;
+        --docdir) DOCDIR="$argument" ;;
+
+        --enable*)
+            argument="${option#--enable}"
+            argument="${argument#-}"
+            [ -z "$argument" ] && {
+                printf -- "*** Missing feature in '--enable' switch!\n";
+                exit 1;
+            }
+            expr "x$argument" : "x[_${ASCIICHARS}][_${ASCIICHARS}0-9]*$" > /dev/null || {
+                printf -- "*** Bad characters in --enable'd feature ('%s')!\n" "$argument";
+                exit 1;
+            }
+            XDEFS="${XDEFS} -D_$argument" ;;
+
+        --disable*)
+            argument="${option#--disable}"
+            argument="${argument#-}"
+            [ -z "$argument" ] && {
+                printf -- "*** Missing feature in '--disable' switch!\n";
+                exit 1;
+            }
+            expr "x$argument" : "x[_${ASCIICHARS}][_${ASCIICHARS}0-9]*$" > /dev/null || {
+                printf -- "*** Bad characters in --disable'd feature ('%s')!\n" "$argument";
+                exit 1;
+            }
+            XDEFS="${XDEFS} -U_$argument" ;;
+
+        --with*)
+            option=${option#--with}
+            option=${option#-}
+            [ -z "$option" ] && {
+                printf -- "** Missing option in '--with' switch!\n";
+                exit 1;
+            }
+            [ -z "$argument" ] && {
+                printf -- "*** Missing value to '$option'!\n"
+                printf -- "*** You must provide a value when setting an option.\n"
+                printf -- "*** Use '--enable-FEATURE' instead if you just want to enable a feature.\n"
+                exit 1
+            }
+            expr "x$option" : "x[_${ASCIICHARS}][_${ASCIICHARS}0-9]*$" > /dev/null || {
+                printf -- "*** Bad characters in package option ('%s')!\n" "$option";
+                exit 1;
+            }
+            XDEFS="$XDEFS -D_$option=\"$argument\"" ;;
+
+        --debug) STRIP=
+                 DEBUG="-DTEST -UNDEBUG -O0 -g" ;;
+
+        --profile) STRIP=
+                   DEBUG="-O0 -g"
+                   PROFILE="-pg" ;;
+
+        --werror) WERROR="-Werror" ;;
+        --warnings) WARNINGS="$WARNINGS $argument" ;;
+        
+        --cflags) CFLAGS="$CFLAGS $argument" ;;
+        --ldflags) LDFLAGS="$LDFLAGS $argument" ;;
+
+        *) printf -- "*** Unknown option '${option}', dammit!\n"
+           printf -- "\n"
+           printf -- "Use --help to show usage, please.\n"
+           exit 1 ;;
+    esac
+done
+
+# Trim the leading space from generated variables ;)
+XDEFS="${XDEFS# }"
+CFLAGS="${CFLAGS# }"
+LDFLAGS="${LDFLAGS# }"
+WARNINGS="${WARNINGS# }"
+
+# Detect binaries
+findbinary 'GNU C compiler' ${GCC:-g++}      ; GCC="$FOUND_BINARY"
+findbinary 'library archiver' ${AR:-ar}      ;  AR="$FOUND_BINARY"
+
+# Just in case, a quite usual default prefix...
+PREFIX="${PREFIX:-/usr/local}"
+
+# Sanitize the prefix. See below for more info ;)
+PREFIX="`printf -- "/$PREFIX/" | tr -s /`"
+
+# This is for a '/usr' install ;)
+if [ "$PREFIX" = "/usr/" ]
+then
+    CONFDIR="${CONFDIR:-/etc}"
+fi
+
+# And this for a root install ;)
+if [ "$PREFIX" = "/" ]
+then
+    DATADIR="${DATADIR:-/usr/lib/$PROJECT}"
+    LIBDIR="${LIBDIR:-/usr/lib}"
+    INCLUDEDIR="${INCLUDEDIR:-/usr/include/$PROJECT}"
+    MANDIR="${MANDIR:-/usr/man}"
+    INFODIR="${INFODIR:-/usr/info}"
+    DOCDIR="${DOCDIR:-/usr/doc/$PROJECT}"
+    PREFIX=
+fi
+
+# Now set default values for unset installation variables
+BINDIR="${BINDIR:-$PREFIX/bin}"
+SBINDIR="${SBINDIR:-$PREFIX/sbin}"
+CONFDIR="${CONFDIR:-$PREFIX/etc}"
+DATADIR="${DATADIR:-$PREFIX/lib/$PROJECT}"
+LIBDIR="${LIBDIR:-$PREFIX/lib}"
+INCLUDEDIR="${INCLUDEDIR:-$PREFIX/include/$PROJECT}"
+MANDIR="${MANDIR:-$PREFIX/man}"
+INFODIR="${INFODIR:-$PREFIX/info}"
+DOCDIR="${DOCDIR:-$PREFIX/doc/$PROJECT}"
+
+# Sanitize path names:
+#   - Substitute multiple '/' for just one
+#   - Add a preceeding '/' for making all paths relative to the root
+#   - Add a final '/' to normalize all pathnames
+PREFIX="`printf -- "/$PREFIX/"         | tr -s /`"
+BINDIR="`printf -- "/$BINDIR/"         | tr -s /`"
+SBINDIR="`printf -- "/$SBINDIR/"       | tr -s /`"
+CONFDIR="`printf -- "/$CONFDIR/"       | tr -s /`"
+DATADIR="`printf -- "/$DATADIR/"       | tr -s /`"
+LIBDIR="`printf -- "/$LIBDIR/"         | tr -s /`"
+INCLUDEDIR="`printf -- "/$INCLUDEDIR/" | tr -s /`"
+MANDIR="`printf -- "/$MANDIR/"         | tr -s /`"
+INFODIR="`printf -- "/$INFODIR/"       | tr -s /`"
+DOCDIR="`printf -- "/$DOCDIR/"         | tr -s /`"
+
+
+# Generate needed files (mobs.h and Makefile)
+rm -f mobs.h Makefile > /dev/null 2>&1
+touch mobs.h Makefile > /dev/null 2>&1
+printf -- "Generating MOBS headers..."
+[ ! -w mobs.h ] && {
+    printf -- "oops!\n"
+    printf -- "*** Cannot generate MOBS headers... Aborting\n"
+    exit 1
+}
+mobs_h > mobs.h
+printf -- "done.\n"
+printf -- "Generating Makefile for \"$PROJECT-$VERSION\"..."
+[ ! -w Makefile ] && {
+    printf -- "oops!\n"
+    printf -- "*** Cannot generate Makefile... Aborting\n"
+    exit 1
+}
+Makefile > Makefile
+
+printf -- "done.\n"
+
+printf -- "Your MOBS identity is '$AUTHOR'\n"
+printf -- "Your installation directories are:\n"
+printf -- "      PREFIX is '$PREFIX'\n"
+printf -- "      BINDIR is '$BINDIR'\n"
+printf -- "     SBINDIR is '$SBINDIR'\n"
+printf -- "      LIBDIR is '$LIBDIR'\n"
+printf -- "  INCLUDEDIR is '$INCLUDEDIR'\n"
+printf -- "      MANDIR is '$MANDIR'\n"
+printf -- "     INFODIR is '$INFODIR'\n"
+printf -- "      DOCDIR is '$DOCDIR'\n"
+printf -- "\n"
+printf -- "Your CONFDIR is '$CONFDIR'\n"
+printf -- "Your DATADIR is '$DATADIR'\n"
+printf -- "Your GNU C compiler is '$GCC'\n"
+printf -- "Your library archiver is '$AR'\n"
+printf -- "\n"
+printf -- "  Re-run '0' script if you want to change any of these,\n"
+printf -- "and use option --help if you need help for the options ;)\n"
+exit 0

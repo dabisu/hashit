@@ -1,0 +1,26 @@
+INTRODUCTION
+------------
+This is a benchmark suite for hash tables. It currently tests
+libghthash, GNU libc hsearch and the C++ STL hash_map.
+
+
+USAGE
+-----
+Compile by running "make" (needs stdc++ with hash_map, GNU libc and
+libghthash).
+
+You run the benchmark by running do_benchmark.sh with two arguments -
+the text file to collect words from and the text file to match the
+words against.
+
+
+EXTENSIONS
+----------
+
+You can add more implementations by implementing the functions in
+bench.h (except do_benchmark) for your hash table. Have a look at
+bench_ght.c or some of the other hash table hooks and it should be
+pretty self explanatory.
+
+
+// Simon Kågström, simonk@df.lth.se

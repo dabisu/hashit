@@ -1,0 +1,12 @@
+Compiling & Installing Hashit
+=============================
+
+./0
+make
+su -c 'make install'
+
+The 0 configuration scripts allow you to change installation directories
+Type './0 --help' for info about all options.
+
+
+David Gómez <david@pleyades.net>

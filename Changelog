@@ -1,0 +1,124 @@
+2004-07-27 Henrik Holst <henrik.holst@ecovision.se>
+
+  * hashit.c: Fixed some changes that were missed in the last release ;)
+
+2004-07-19 David Gómez <david@pleyades.net>
+
+  * Release of hashit 0.9.2
+
+2004-07-14 Henrik Holst <henrik.holst@ecovision.se>
+
+   * hashit.c: Fixed memory leak in hashit_create, when cfunc was NULL
+   * hashit.c: Free memory in the rigth order
+   * hashit.c: Move frees of htable out to hashit_destroy
+   * hashit.c: Free oneelem in ch_insert when the key is already inserted
+   * hashit.c: Check if the key is not in the table in ch_delete
+   * hashit.c: In oa_lookup, check for NULL in cfunc
+   * hashit.c: Free table elements in ch_destroy when it isn't empty
+   * hashit.c: In oa_delete, rehash elements at the right of the deleted element
+   * hashit.c: Fixed several bugs in overflow hash functions
+   * hashit.c: Recalculate pointers when overflow area is resized
+   * hashit.c: Added oa_replace, oa_getkeys
+   * hashit.c: Added ov_replace, ov_getkeys
+
+2004-06-25 David Gómez <david@pleyades.net>
+
+   * Release of hashit 0.9.1
+
+2004-06-21 David Gómez <david@pleyades.net>
+
+   * hashit.c: Initialize nelems in hashit_create
+
+2004-06-15 Henrik Holst <henrik.holst@ecovision.se>
+
+    * hashit.c: Fixed bug in ch_getkeys
+    * hashit.h: Added support for C++ programs to use hashit
+
+2004-01-16 David Gómez <david@pleyades.net>
+
+    * Relase of hashit 0.9
+
+2004-01-11 David Gómez <david@pleyades.net>
+
+    * hashit.c: Fixed hell-of-a-bug in ch_insert that caused duplicated
+      keys to be inserted in the hash table.
+    * hashit.c, hashit.h: Added two new functions to hashit, one is to
+      change the data associated to an element, which is faster that calling
+      hashit_insert and hashit_delete if the key has not changed. The 
+      second one returns a null terminated array with all the keys contained
+      in the hash table. This one has been a feature asked by several
+      hashit users ;). Thanks to Muhammad Muquit <muquit@muqit.com> for
+      his suggestions, ideas and bug reports ;).
+      
+2003-12-29 David Gómez <david@pleyades.net>
+
+    * hashit.h, hashit: Added some accessor functions.
+    * hashit.c: Added a new field to the hash_t structure to keep
+      account of the number of elements a table contains.
+    * hashit.h, hashit.c: Encapsulate properly all the hash table
+      structures and allow access only thru public interfaces. This
+      should have been done before O:).
+    * Update to MOBS-1.0
+
+2003-10-08 David Gómez <david@pleyades.net>
+
+    * Release of hashit 0.8
+    * Update to MOBS-1.0rc19.2
+    * hashit.h: The union in the main struct for the hash table was made
+      anonymous. Gcc 2-95.x doesn't support this extensions and the compilation
+      failed.
+    * hashit.h, hashit.c: The union change motivated a complete cleaning of
+      the name of structs and functions, to make all them more readable.
+   
+2003-06-17 David Gómez <david@pleyades.net>
+
+    * Release of hashit 0.7
+
+2003-06-13 Stan Bielski <stan@ece.cmu.edu>
+
+    * hashit.c: Fixed bug in hashit chained_lookup. First element of the
+      bucket list was always referenced instead of cursor...
+    * hashit.c: Fixed bug in gethash, now it uses the hash table size minus
+      one, so the right value is returned.
+
+2003-05-20 David Gómez <david@pleyades.net>
+
+    * Release of hashit 0.6
+
+2002-11-19 David Gómez <david@pleyades.net>
+
+    * Add mobs-1.0.0 configure system to hashit
+
+2002-10-03 David Gómez <david@pleyades.net>
+
+    * First release of hashit, version 0.5
+    * README: Add some documentation ;)
+        
+    * version 0.4
+    * hashit.c: Cache first free unused position in overflow area
+    * hashit.c: Removed superflous else from overflow_insert
+    * hashit.c: Fixed a wrong value in gethash that 'automagically' apeared ;)
+      when OVAREASIZE changes were made.
+        
+    * version 0.3
+    * hashit.c: Fixed bug in overflow_insert, return 0 when the element is
+	  inserted succesfully in the no collision case
+    * hashit.c: Make overflow area dynamic till a certain size
+    * hashit.c: chained_lookup has been rewrited to make it simpler
+    * hashit.c: Added support for hashing with overflow area
+    * Add ZeroConf configure system
+    * hashit.c: Changed designated initializers to use C99 syntax
+
+    * version 0.2
+    * hashit.c: Use correct errno values
+    * hashit.c, hashit.h: Added support for open address hashing
+    * hashit.c: Changed hashit_create for use hash function that is selected,
+      default is bob_hash function
+    * hashit.c, hashit.h: Add One-at-a-time Hash
+    * hfunctions.c: Put hash functions in a separate source file
+    * hashit.c: Max size for the hash table is now 2^32
+    * hashit.c: Fixed infinite loop in hashit_create, when sizehint is too 
+      high, and take the last power of two
+    * hashit.c: Fixed corner case in hashit_create when there is not
+      enough memory
+
