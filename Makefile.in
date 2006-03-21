@@ -1,0 +1,34 @@
+.PHONY: all clean distclean install
+
+ifdef ENABLE_DEBUG
+_CPPFLAGS=-UNDEBUG
+_CFLAGS+=-g -O0 -Wall
+else
+_CPPFLAGS=-DNDEBUG
+_CFLAGS+=-O2
+endif
+
+_SONAME=1
+
+HASHIT_SOURCES=$(wildcard src/*.c)
+HASHIT_OBJECTS=$(patsubst %.c,%.o,$(wildcard src/*.c))
+DEPENDENCIES=$(patsubst %.o,%.d,$(HASHIT_OBJECTS))
+POFILES=$(wildcard po/*.po)
+
+all: src/libhashit.so 
+
+src/libhashit.so: $(HASHIT_OBJECTS)
+	$(MAKE.shared) $@ $^
+
+clean:
+	@rm -rf $(HASHIT_OBJECTS) $(DEPENDENCIES) src/libhashit.so
+
+distclean: clean
+	@rm -rf Makefile config.mk config.h 
+
+DIRMODE="a+rx,u+w"
+
+install: all
+	@$(call makedir,$(LIBDIR),$(DIRMODE))
+	@$(call install_files,src/libhashit.so,$(LIBDIR),a=rx)
+	

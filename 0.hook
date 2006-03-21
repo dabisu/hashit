@@ -1,0 +1,12 @@
+#!/bin/sh
+echo -n "Checking for pkg-config..."
+which pkg-config > /dev/null 2>&1
+if [ $? -eq 1 ]; then
+	echo; echo "Sakura uses pkg-config to detect libraries, please install it..."
+	exit 1;
+else
+	echo " found"
+fi
+
+printf -- "\n"
+printf -- "$PROJECT library will be installed in:\t'%s'\n" "$LIBDIR"
