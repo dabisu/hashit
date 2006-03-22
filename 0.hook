@@ -1,12 +1,4 @@
 #!/bin/sh
-echo -n "Checking for pkg-config..."
-which pkg-config > /dev/null 2>&1
-if [ $? -eq 1 ]; then
-	echo; echo "Sakura uses pkg-config to detect libraries, please install it..."
-	exit 1;
-else
-	echo " found"
-fi
 
 ESC_PREFIX=`echo $PREFIX|sed -s 's/\//\\\\\//g'`
 ESC_LIBDIR=`echo $LIBDIR|sed -s 's/\//\\\\\//g'`
