@@ -1,9 +1,9 @@
-prefix=@prefix@
-libdir=@libdir@
-includedir=@includedir@
+prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCDIR@
 
 Name: libhashit
 Description: Generic hash library
 Version: @VERSION@
-Libs: -L@libdir@ -lhashit
-Cflags: -I@includedir@/hashit
+Libs: -L{libdir} -lhashit
+Cflags: -I{includedir}/hashit

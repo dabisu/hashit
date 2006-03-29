@@ -1,13 +1,5 @@
 #!/bin/sh
 
-ESC_PREFIX=`echo $PREFIX|sed -s 's/\//\\\\\//g'`
-ESC_LIBDIR=`echo $LIBDIR|sed -s 's/\//\\\\\//g'`
-ESC_INCDIR=`echo $INCDIR|sed -s 's/\//\\\\\//g'`
-sed -e "s/@VERSION@/$VERSION/g" \
-	-e "s/@prefix@/$ESC_PREFIX/g" \
-	-e "s/@libdir@/$ESC_LIBDIR/g" \
-	-e "s/@includedir@/$ESC_INCDIR/g" libhashit.pc.in > libhashit.pc
-
 printf -- "\n"
 printf -- "$PROJECT library will be installed in:\t'%s'\n" "$LIBDIR"
 printf -- "$PROJECT includes will be installed in:\t'%s'\n" "$INCDIR"

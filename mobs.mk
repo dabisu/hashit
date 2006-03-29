@@ -1,4 +1,4 @@
-#   $Revision: 55 $
+#   $Revision: 56 $
 #   This file contains helpers for building a makefile.
 #
 #   Copyright (C) 2005,2006 Rau'l Nu'n~ez de Arenas Coronado
@@ -147,6 +147,44 @@ override install_files={\
     } done; true;\
 }
 
+
+# 	This function "munges" the input file into the output file
+# substituting variables of the form @VARIABLE@ for their values.
+# $(1) is the input file (the file to munge).
+# $(2) is the output file (the munged file).
+override munge_file={\
+    [ -z "$(1)" ] && {\
+        printf -- "*** Missing input file name in call to 'munge_file'.\n" >&2;\
+        exit 1;\
+    };\
+    [ -z "$(2)" ] && {\
+        printf -- "*** Missing output file name in call to 'munge_file'.\n" >&2;\
+        exit 1;\
+    };\
+    sed -e '\
+        s|\\@|<<<>>>|g;\
+        s|@PROJECT@|$(PROJECT)|g;\
+        s|@VERSION@|$(VERSION)|g;\
+        s|@AUTHOR@|$(AUTHOR)|g;\
+        s|@PREFIX@|$(PREFIX)|g;\
+        s|@BINDIR@|$(SBINDIR)|g;\
+        s|@SBINDIR@|$(SBINDIR)|g;\
+        s|@XBINDIR@|$(XBINDIR)|g;\
+        s|@CONFDIR@|$(CONFDIR)|g;\
+        s|@DATADIR@|$(DATADIR)|g;\
+        s|@INFODIR@|$(INFODIR)|g;\
+        s|@MANDIR@|$(MANDIR)|g;\
+        s|@DOCDIR@|$(DOCDIR)|g;\
+        s|@LIBDIR@|$(LIBDIR)|g;\
+        s|@INCDIR@|$(INCDIR)|g;\
+        s|@STATEDIR@|$(STATEDIR)|g;\
+        s|@SPOOLDIR@|$(SPOOLDIR)|g;\
+        s|<<<>>>|@|g;\
+    ' "$(1)" > "$(2)" || {\
+        printf -- "*** Couldn't munge file \"$1\".\n" >&2;\
+        exit 1;\
+    }\
+}
 
 ##### Recipes
 

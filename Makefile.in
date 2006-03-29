@@ -15,10 +15,13 @@ HASHIT_OBJECTS=$(patsubst %.c,%.o,$(wildcard src/*.c))
 DEPENDENCIES=$(patsubst %.o,%.d,$(HASHIT_OBJECTS))
 POFILES=$(wildcard po/*.po)
 
-all: src/libhashit.so 
+all: src/libhashit.so pkg-config
 
 src/libhashit.so: $(HASHIT_OBJECTS)
 	$(MAKE.shared) $@ $^
+
+pkg-config: libhashit.pc.in
+	$(call munge_file,libhashit.pc.in,libhashit.pc)
 
 clean:
 	@rm -rf $(HASHIT_OBJECTS) $(DEPENDENCIES) src/libhashit.so
