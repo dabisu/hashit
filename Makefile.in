@@ -1,4 +1,4 @@
-.PHONY: all clean distclean install
+.PHONY: all clean distclean install pkg-config
 
 ifdef ENABLE_DEBUG
 _CPPFLAGS=-UNDEBUG
@@ -15,16 +15,18 @@ HASHIT_OBJECTS=$(patsubst %.c,%.o,$(wildcard src/*.c))
 DEPENDENCIES=$(patsubst %.o,%.d,$(HASHIT_OBJECTS))
 POFILES=$(wildcard po/*.po)
 
-all: src/libhashit.so pkg-config
+all: src/libhashit.so.1.0 pkg-config
 
-src/libhashit.so: $(HASHIT_OBJECTS)
+src/libhashit.so.1.0: $(HASHIT_OBJECTS)
 	$(MAKE.shared) $@ $^
+	@ln -s libhashit.so.1.0 src/libhashit.so.1 2> /dev/null; true
+	@ln -s libhashit.so.1.0 src/libhashit.so 2>/dev/null; true
 
 pkg-config: libhashit.pc.in
-	$(call munge_file,libhashit.pc.in,libhashit.pc)
+	@$(call munge_file,libhashit.pc.in,libhashit.pc)
 
 clean:
-	@rm -rf $(HASHIT_OBJECTS) $(DEPENDENCIES) src/libhashit.so
+	@rm -rf $(HASHIT_OBJECTS) $(DEPENDENCIES) src/libhashit.so.*
 
 distclean: clean
 	@rm -rf Makefile config.mk config.h 
