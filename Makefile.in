@@ -8,16 +8,17 @@ _CPPFLAGS=-DNDEBUG
 _CFLAGS+=-O2
 endif
 
-_SONAME=libhashit.so.1
+ABIVERSION=1
+RELEASEVERSION=0
+_SONAME=libhashit.so.$(ABIVERSION)
 
-HASHIT_SOURCES=$(wildcard src/*.c)
 HASHIT_OBJECTS=$(patsubst %.c,%.o,$(wildcard src/*.c))
 DEPENDENCIES=$(patsubst %.o,%.d,$(HASHIT_OBJECTS))
 POFILES=$(wildcard po/*.po)
 
-all: src/libhashit.so.1.0 pkg-config
+all: src/libhashit.so.$(ABIVERSION).$(RELEASEVERSION) pkg-config
 
-src/libhashit.so.1.0: $(HASHIT_OBJECTS)
+src/libhashit.so.$(ABIVERSION).$(RELEASEVERSION): $(HASHIT_OBJECTS)
 	$(MAKE.shared) $@ $^
 
 pkg-config: libhashit.pc.in
@@ -34,6 +35,6 @@ DIRMODE="a+rx,u+w"
 install: all
 	@$(call makedir,$(LIBDIR),$(DIRMODE))
 	@$(call install_files,src/libhashit.so.1.0,$(LIBDIR),a=rx)
-	@ln -s $(LIBDIR)/libhashit.so.1.0 $(LIBDIR)/libhashit.so 2> /dev/null; true
+	@ln -s $(LIBDIR)/libhashit.so.$(ABIVERSION).$(RELEASEVERSION) $(LIBDIR)/libhashit.so 2> /dev/null; true
 	@ldconfig
 	
