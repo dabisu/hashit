@@ -8,7 +8,7 @@ _CPPFLAGS=-DNDEBUG
 _CFLAGS+=-O2
 endif
 
-_SONAME=1
+_SONAME=libhashit.so.1
 
 HASHIT_SOURCES=$(wildcard src/*.c)
 HASHIT_OBJECTS=$(patsubst %.c,%.o,$(wildcard src/*.c))
@@ -19,8 +19,6 @@ all: src/libhashit.so.1.0 pkg-config
 
 src/libhashit.so.1.0: $(HASHIT_OBJECTS)
 	$(MAKE.shared) $@ $^
-	@ln -s libhashit.so.1.0 src/libhashit.so.1 2> /dev/null; true
-	@ln -s libhashit.so.1.0 src/libhashit.so 2>/dev/null; true
 
 pkg-config: libhashit.pc.in
 	@$(call munge_file,libhashit.pc.in,libhashit.pc)
@@ -35,5 +33,7 @@ DIRMODE="a+rx,u+w"
 
 install: all
 	@$(call makedir,$(LIBDIR),$(DIRMODE))
-	@$(call install_files,src/libhashit.so,$(LIBDIR),a=rx)
+	@$(call install_files,src/libhashit.so.1.0,$(LIBDIR),a=rx)
+	@ln -s $(LIBDIR)/libhashit.so.1.0 $(LIBDIR)/libhashit.so 2> /dev/null; true
+	@ldconfig
 	
