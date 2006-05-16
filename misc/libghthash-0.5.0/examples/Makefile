@@ -1,4 +1,3 @@
-# Generated automatically from Makefile.in by configure.
 # Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
@@ -16,6 +15,7 @@ SHELL = /bin/sh
 
 srcdir = .
 top_srcdir = ..
+
 prefix = /usr/local
 exec_prefix = ${prefix}
 
@@ -40,15 +40,15 @@ pkgincludedir = $(includedir)/libghthash
 
 top_builddir = ..
 
-ACLOCAL = aclocal
+ACLOCAL = aclocal-1.9
 AUTOCONF = autoconf
-AUTOMAKE = automake
+AUTOMAKE = automake-1.9
 AUTOHEADER = autoheader
 
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = ${INSTALL} -m 644
-INSTALL_SCRIPT = ${INSTALL_PROGRAM}
+INSTALL_SCRIPT = ${INSTALL}
 transform = s,x,x,
 
 NORMAL_INSTALL = :
@@ -57,17 +57,17 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-host_alias = i686-pc-linux-gnu
+host_alias = 
 host_triplet = i686-pc-linux-gnu
 AS = @AS@
 BINARY_AGE = 0
 CC = gcc
 CFLAGS = -g -O2 -DNDEBUG -Wall -ansi
-CXX = c++
+CXX = g++
 DLLTOOL = @DLLTOOL@
 INT32_T = int
 INTERFACE_AGE = 0
-LD = /usr/bin/ld
+LD = @LD@
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 LT_AGE = 0
@@ -78,7 +78,7 @@ MAJOR_VERSION = 0
 MAKEINFO = makeinfo
 MICRO_VERSION = 0
 MINOR_VERSION = 5
-NM = /usr/bin/nm -B
+NM = @NM@
 OBJDUMP = @OBJDUMP@
 PACKAGE = libghthash
 RANLIB = ranlib
