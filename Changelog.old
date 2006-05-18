@@ -1,3 +1,6 @@
+Old Changelog, new changes are documented in the subversion log included
+in the new Changelog.
+
 2004-07-27 Henrik Holst <henrik.holst@ecovision.se>
 
   * hashit.c: Fixed some changes that were missed in the last release ;)
