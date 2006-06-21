@@ -73,11 +73,11 @@ use the library:
         are equal, and a value different from zero if they are not.
     * flags:
         flags can have the following values:
-	 CHAIN_H: 
+		CHAIN_H: 
             Hash table uses chaining for handling collisions
-	 OADDRESS_H:
+		OADDRESS_H:
             Hash table uses open address hashing for handling collisions
-         OVERFLOW_H:
+		OVERFLOW_H:
             Hasht table uses an overflow area for handling collisions
         If you're not sure about what collision handling your hash table should
         have, then use CHAIN_H.
