@@ -1,4 +1,4 @@
-#   $Revision: 56 $
+#   $Revision: 60 $
 #   This file contains helpers for building a makefile.
 #
 #   Copyright (C) 2005,2006 Rau'l Nu'n~ez de Arenas Coronado
@@ -93,21 +93,23 @@ endif
 # This function creates installation directories.
 # $(1) is the directory you want to create.
 # $(2) is the directory mode, octal or symbolic.
-override makedir={\
-    [ -z "$(1)" ] && {\
-        printf -- "*** Missing directory name in call to 'makedir'.\n" >&2;\
-        exit 1;\
-    };\
-    [ -z "$(2)" ] && {\
-        printf -- "*** Missing mode in call to 'makedir'.\n" >&2;\
-        exit 1;\
-    };\
-    [ -d "$(1)" ] && exit 0;\
-    printf -- "Creating directory \"$(1)\"...\n" >&2;\
-    mkdir -m "$(2)" -p "$(1)" > /dev/null 2>&1 || {\
-        printf -- "*** Cannot create directory \"$(1)\".\n" >&2;\
-        exit 1;\
-    };\
+override makedir={ \
+    [ -z "$(1)" ] && { \
+        printf -- "*** Missing directory name in call to 'makedir'.\n" >&2; \
+        exit 1; \
+    }; \
+    [ -z "$(2)" ] && { \
+        printf -- "*** Missing mode in call to 'makedir'.\n" >&2; \
+        exit 1; \
+    }; \
+    [ -d "$(1)" ] || { \
+    	printf -- "Creating directory \"$(1)\"...\n" >&2; \
+    	mkdir -m "$(2)" -p "$(1)" > /dev/null 2>&1 || { \
+        	printf -- "*** Cannot create directory \"$(1)\".\n" >&2; \
+        	exit 1; \
+		}; \
+	}; \
+	true; \
 }
 
 
@@ -116,35 +118,35 @@ override makedir={\
 # $(1) are the file names or pattern (globbing is performed).
 # $(2) is the destination directory.
 # $(3) is the file mode, octal or symbolic.
-override install_files={\
-    [ -z "$(1)" ] && {\
-        printf -- "*** Missing file names in call to 'install_files'.\n" >&2;\
-        exit 1;\
-    };\
-    [ -z "$(wildcard $(1))" -o -d "$(wildcard $(1))" ] && {\
-        printf -- "*** Wildcard '$(1)' didn't produce a list of files!!!\n" >&2;\
-	exit 1;\
-    };\
-    [ -z "$(2)" ] && {\
-        printf -- "*** Missing destination directory in call to 'install_files'.\n" >&2;\
-        exit 1;\
-    };\
-    [ -z "$(3)" ] && {\
-        printf -- "*** Missing mode in call to 'install_files'.\n" >&2;\
-        exit 1;\
-    };\
-    for file in $(wildcard $(1));\
-    do [ -f "$$file" -a -r "$$file" ] && {\
-            cp -f "$$file" "$(2)" > /dev/null 2>&1 || {\
-                printf -- "*** Couldn't install file \"$$file\".\n" >&2;\
-                exit 1;\
-            };\
-            chmod $(3) "$(2)/`basename "$$file"`" > /dev/null 2>&1 || {\
-                printf -- "*** Couldn't change permissions of file \"$$file\".\n" >&2;\
-                exit 1;\
-            };\
-            printf -- "$(2)/`basename "$$file"`\n";\
-    } done; true;\
+override install_files={ \
+    [ -z "$(1)" ] && { \
+        printf -- "*** Missing file names in call to 'install_files'.\n" >&2; \
+        exit 1; \
+    }; \
+    [ -z "$(wildcard $(1))" -o -d "$(wildcard $(1))" ] && { \
+        printf -- "*** Wildcard '$(1)' didn't produce a list of files!!!\n" >&2; \
+	exit 1; \
+    }; \
+    [ -z "$(2)" ] && { \
+        printf -- "*** Missing destination directory in call to 'install_files'.\n" >&2; \
+        exit 1; \
+    }; \
+    [ -z "$(3)" ] && { \
+        printf -- "*** Missing mode in call to 'install_files'.\n" >&2; \
+        exit 1; \
+    }; \
+    for file in $(wildcard $(1)); \
+    do [ -f "$$file" -a -r "$$file" ] && { \
+            cp -f "$$file" "$(2)" > /dev/null 2>&1 || { \
+                printf -- "*** Couldn't install file \"$$file\".\n" >&2; \
+                exit 1; \
+            }; \
+            chmod $(3) "$(2)/`basename "$$file"`" > /dev/null 2>&1 || { \
+                printf -- "*** Couldn't change permissions of file \"$$file\".\n" >&2; \
+                exit 1; \
+            }; \
+            printf -- "$(2)/`basename "$$file"`\n"; \
+    } done; true; \
 }
 
 
@@ -152,38 +154,38 @@ override install_files={\
 # substituting variables of the form @VARIABLE@ for their values.
 # $(1) is the input file (the file to munge).
 # $(2) is the output file (the munged file).
-override munge_file={\
-    [ -z "$(1)" ] && {\
-        printf -- "*** Missing input file name in call to 'munge_file'.\n" >&2;\
-        exit 1;\
-    };\
-    [ -z "$(2)" ] && {\
-        printf -- "*** Missing output file name in call to 'munge_file'.\n" >&2;\
-        exit 1;\
-    };\
-    sed -e '\
-        s|\\@|<<<>>>|g;\
-        s|@PROJECT@|$(PROJECT)|g;\
-        s|@VERSION@|$(VERSION)|g;\
-        s|@AUTHOR@|$(AUTHOR)|g;\
-        s|@PREFIX@|$(PREFIX)|g;\
-        s|@BINDIR@|$(SBINDIR)|g;\
-        s|@SBINDIR@|$(SBINDIR)|g;\
-        s|@XBINDIR@|$(XBINDIR)|g;\
-        s|@CONFDIR@|$(CONFDIR)|g;\
-        s|@DATADIR@|$(DATADIR)|g;\
-        s|@INFODIR@|$(INFODIR)|g;\
-        s|@MANDIR@|$(MANDIR)|g;\
-        s|@DOCDIR@|$(DOCDIR)|g;\
-        s|@LIBDIR@|$(LIBDIR)|g;\
-        s|@INCDIR@|$(INCDIR)|g;\
-        s|@STATEDIR@|$(STATEDIR)|g;\
-        s|@SPOOLDIR@|$(SPOOLDIR)|g;\
-        s|<<<>>>|@|g;\
-    ' "$(1)" > "$(2)" || {\
-        printf -- "*** Couldn't munge file \"$1\".\n" >&2;\
-        exit 1;\
-    }\
+override munge_file={ \
+    [ -z "$(1)" ] && { \
+        printf -- "*** Missing input file name in call to 'munge_file'.\n" >&2; \
+        exit 1; \
+    }; \
+    [ -z "$(2)" ] && { \
+        printf -- "*** Missing output file name in call to 'munge_file'.\n" >&2; \
+        exit 1; \
+    }; \
+    sed -e ' \
+        s|\\@|<<<>>>|g; \
+        s|@PROJECT@|$(PROJECT)|g; \
+        s|@VERSION@|$(VERSION)|g; \
+        s|@AUTHOR@|$(AUTHOR)|g; \
+        s|@PREFIX@|$(PREFIX)|g; \
+        s|@BINDIR@|$(SBINDIR)|g; \
+        s|@SBINDIR@|$(SBINDIR)|g; \
+        s|@XBINDIR@|$(XBINDIR)|g; \
+        s|@CONFDIR@|$(CONFDIR)|g; \
+        s|@DATADIR@|$(DATADIR)|g; \
+        s|@INFODIR@|$(INFODIR)|g; \
+        s|@MANDIR@|$(MANDIR)|g; \
+        s|@DOCDIR@|$(DOCDIR)|g; \
+        s|@LIBDIR@|$(LIBDIR)|g; \
+        s|@INCDIR@|$(INCDIR)|g; \
+        s|@STATEDIR@|$(STATEDIR)|g; \
+        s|@SPOOLDIR@|$(SPOOLDIR)|g; \
+        s|<<<>>>|@|g; \
+    ' "$(1)" > "$(2)" || { \
+        printf -- "*** Couldn't munge file \"$1\".\n" >&2; \
+        exit 1; \
+    } \
 }
 
 ##### Recipes

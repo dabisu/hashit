@@ -35,6 +35,8 @@ DIRMODE="a+rx,u+w"
 install: all
 	@$(call makedir,$(LIBDIR),$(DIRMODE))
 	@$(call install_files,src/libhashit.so.1.0,$(LIBDIR),a=rx)
+	@$(call makedir,$(INCDIR),$(DIRMODE))
+	@$(call install_files,src/hashit.h,$(INCDIR),a=rx)
 	@ln -s $(LIBDIR)/libhashit.so.$(ABIVERSION).$(RELEASEVERSION) $(LIBDIR)/libhashit.so 2> /dev/null; true
 	@ldconfig
 	
