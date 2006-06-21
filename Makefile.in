@@ -16,12 +16,12 @@ HASHIT_OBJECTS=$(patsubst %.c,%.o,$(wildcard src/*.c))
 DEPENDENCIES=$(patsubst %.o,%.d,$(HASHIT_OBJECTS))
 POFILES=$(wildcard po/*.po)
 
-all: src/libhashit.so.$(ABIVERSION).$(RELEASEVERSION) pkg-config
+all: src/libhashit.so.$(ABIVERSION).$(RELEASEVERSION) libhashit.pc 
 
 src/libhashit.so.$(ABIVERSION).$(RELEASEVERSION): $(HASHIT_OBJECTS)
 	$(MAKE.shared) $@ $^
 
-pkg-config: libhashit.pc.in
+libhashit.pc: libhashit.pc.in
 	@$(call munge_file,libhashit.pc.in,libhashit.pc)
 
 clean:
@@ -37,6 +37,8 @@ install: all
 	@$(call install_files,src/libhashit.so.1.0,$(LIBDIR),a=rx)
 	@$(call makedir,$(INCDIR),$(DIRMODE))
 	@$(call install_files,src/hashit.h,$(INCDIR),a=rx)
+	@$(call makedir,$(LIBDIR)/pkgconfig,$(DIRMODE))
+	@$(call install_files,libhashit.pc,$(LIBDIR)/pkgconfig,a=rx)
 	@ln -s $(LIBDIR)/libhashit.so.$(ABIVERSION).$(RELEASEVERSION) $(LIBDIR)/libhashit.so 2> /dev/null; true
 	@ldconfig
 	

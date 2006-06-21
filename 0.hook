@@ -3,3 +3,4 @@
 printf -- "\n"
 printf -- "$PROJECT library will be installed in:\t'%s'\n" "$LIBDIR"
 printf -- "$PROJECT includes will be installed in:\t'%s'\n" "$INCDIR"
+printf -- "$PROJECT pkg-config files will be installed in:\t'%s'\n" "$LIBDIR"/pkgconfig
