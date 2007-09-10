@@ -5,20 +5,15 @@ Hashit is aproacching to 1.0 release ;). I'd like to do a final 1.0 release
 when i'm sure that hashit is rock-solid and has hopefully zero bugs. First
 versions had some ugly mistakes, but with the help and bug reports of all the
 people that used and tested hashit in its first versions, it has become a nicer
-library :). Thanks specially to:
+library :). 
 
- Stan Bielski <stan@ece.cmu.edu>
- Henrik Holst <henrik.holst@ecovision.se>
- Muhammad Muquit <muquit@muqit.com> 
- Raúl <raul@pleyades.net>
-
-Thanks also to Bob Jenkins for his great hash functions published in his web
+Thanks to Bob Jenkins for his great hash functions published in his web
 page: http://burtleburtle.net/bob/hash.
 
 My intentions at the time of starting to write this hash library was to
-implement different collision handling methods, which could be selected at table 
-creation time and to have one common interface for all this methods in the
-library. Also i had in mind to make it easy to add new collision policies
+implement different collision handling methods, which could be selected at
+table creation time and to have one common interface for all this methods in
+the library. Also i had in mind to make it easy to add new collision policies
 without much messing in the code ;). The best method for using this library
 with practical purposes is the chaining hash, no doubt. Most of the
 other methods are not sufficiently tested, so they're added, as other possibly

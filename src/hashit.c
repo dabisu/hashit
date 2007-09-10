@@ -565,6 +565,7 @@ oa_delete(hash_t htable, void *key)
 
 				htable->cm.oatable[idx].key=NULL;
 				htable->cm.oatable[idx].data=NULL;
+				htable->nelems--;
 				oa_insert(htable, tmp_key, tmp_data);
 			}
 			return 0;
