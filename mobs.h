@@ -1,26 +1,24 @@
-/*  $Revision: 52 $
+/*  $Revision: 65 $
     This file contains development & diagnostic helpers
     
     Copyright (C) 2005,2006 Rau'l Nu'n~ez de Arenas Coronado
     Report bugs to DervishD <bugs@dervishd.net>
 
-       This program is free software; you can redistribute it and/or
-        modify it under the terms of the GNU General Public License
-               as published by the Free Software Foundation;
-                     either version 2 of the License,
-                  or (at your option) any later version.
+         This program is free software; you can redistribute it and/or
+          modify it under the terms of the GNU General Public License
+            version 2 as published by the Free Software Foundation
 
-      This program is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty
-          of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-           See the GNU General Public License for more details.
+        This program is distributed in the hope that it will be useful,
+          but WITHOUT ANY WARRANTY; without even the implied warranty
+            of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+             See the GNU General Public License for more details.
 
-      You should have received a copy of the GNU General Public License
-             ('GPL') along with this program; if not, write to:
+       You should have received a copy of the GNU General Public License
+              ('GPL') along with this program; if not, write to:
 
-                       Free Software Foundation, Inc.
-                         59 Temple Place, Suite 330
-                         Boston, MA 02111-1307  USA
+                        Free Software Foundation, Inc.
+                          59 Temple Place, Suite 330
+                          Boston, MA 02111-1307  USA
 */
 #ifndef __MOBS_H__
 #define __MOBS_H__
@@ -32,29 +30,17 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <wchar.h>
 #include "config.h"
 #endif
 
 
 /*
-    This is the error handling structure.
-    By now it is considered to be in alpha stage, so use it
-at your own risk. It won't break anything, but may pollute the
-namespace and the fields may change without notice.
-
-FIXME: We need an EASY way of initialize the structure to all 0's.
+    This macro is optional, but we assign here a default value so
+the code of the rest of function and macros is a bit easier.
 */
-#ifndef __mobs_ehstruct
-#define __mobs_ehstruct
-typedef struct {
-    unsigned int code;
-    unsigned char *msg;
-
-    uintmax_t natural;
-    intmax_t integer;
-    long double real;
-    void *pointer;
-} Error;
+#ifndef AUTHOR
+#define AUTHOR ""
 #endif
 
 
@@ -100,7 +86,6 @@ to be used. The other macro is just a helper.
     #endif
 #endif
 
-
 /*
     This macro does the same that 'BUG()', but with the semantics of
 the C9x 'assert()' macro, and ignoring the value of 'errno'. The main
@@ -112,25 +97,29 @@ also printed for helping to locate this assertion.
     Use this macro to make assertions. Quite easy, isn't it? ;)))
 */
 #undef ASSERT
+#undef WASSERT
 #ifndef NDEBUG
-#ifdef AUTHOR
-#define ASSERT(mobs_expr) if (!(mobs_expr)) {\
-    fprintf(stderr, "\nASSERTION FAILED, process %d aborting...\n", getpid());\
-    fprintf(stderr, "Assertion \"(%s)\" failed at %s()@%s:%d\n", #mobs_expr, __func__, __FILE__, __LINE__);\
-    fputs("Report bugs to " AUTHOR "\n\n", stderr);\
+#define ASSERT(mobs_expr) do { if (!(mobs_expr)) {\
+    fwide(stderr, -1);\
+    fprintf(stderr, "*** ASSERTION FAILED, process %d aborting...\n", getpid());\
+    fprintf(stderr, "*** Assertion \"(%s)\" failed at %s()@%s:%d\n", #mobs_expr, __func__, __FILE__, __LINE__);\
+    if (strlen(AUTHOR))\
+        fputs("Report bug to "AUTHOR"\n", stderr);\
     fflush(stderr);\
     abort();\
-}
-#else
-#define ASSERT(mobs_expr) if (!(mobs_expr)) {\
-    fprintf(stderr, "\nASSERTION FAILED, process %d aborting...\n", getpid());\
-    fprintf(stderr, "Assertion \"(%s)\" failed at %s()@%s:%d\n\n", #mobs_expr, __func__, __FILE__, __LINE__);\
+}} while (0)
+#define WASSERT(mobs_expr) do { if (!(mobs_expr)) {\
+    fwide(stderr, 1);\
+    fwprintf(stderr, L"*** ASSERTION FAILED, process %d aborting...\n", getpid());\
+    fwprintf(stderr, L"*** Assertion \"(%s)\" failed at %s()@%s:%d\n", #mobs_expr, __func__, __FILE__, __LINE__);\
+    if (wcslen(L"" AUTHOR ""))\
+        fputws(L"Report bug to "AUTHOR"\n", stderr);\
     fflush(stderr);\
     abort();\
-}
-#endif
+}} while (0)
 #else
-#define ASSERT(mobs_expr) (void)(mobs_expr)
+#define ASSERT(mobs_expr) do {(void)(mobs_expr);} while(0)
+#define WASSERT(mobs_expr) do {(void)(mobs_expr);} while(0)
 #endif
 
 
@@ -147,29 +136,64 @@ static inline const char *progname (const char *mobs_string) {
     mobs_where=strrchr(mobs_string, '/');
     return mobs_where?mobs_where+1:mobs_string;
 }
+
+static inline const wchar_t *wprogname (const wchar_t *);
+static inline const wchar_t *wprogname (const wchar_t *mobs_string) {
+    wchar_t *mobs_where=NULL;
+    
+    WASSERT(mobs_string != NULL);
+
+    mobs_where=wcsrchr(mobs_string, L'/');
+    return mobs_where?mobs_where+1:mobs_string;
+}
 #endif
 
 
 /* This one is pretty large ;))). The GPL disclaimer, just in case... */
 #ifndef GPL_DISCLAIMER
-#define GPL_DISCLAIMER(mobs_string) do {\
-    const char *mobs_whoami= strcmp(#mobs_string,"") ? progname(#mobs_string) : "This program";\
-    if (strcasecmp(mobs_whoami, PROJECT)) fprintf(stdout, "%s is part of \'" PROJECT "-" VERSION "\'\n\n", mobs_whoami);\
-    fprintf(stdout, "%s is free software;\n", mobs_whoami);\
+#define GPL_DISCLAIMER() do {\
+    fwide(stdout, -1);\
+    fputs("This program is part of '"PROJECT"-"VERSION"'\n", stdout);\
+    fputc('\n', stdout);\
+    fputs("This program is free software;\n", stdout);\
     fputs("you can redistribute it and/or modify it under the terms of the\n", stdout);\
     fputs("GNU General Public License as published by the Free Software Foundation;\n", stdout);\
     fputs("either version 2 of the License, or (at your option) any later version.\n", stdout);\
-    fputs("\n", stdout);\
-    fprintf(stdout, "%s is distributed in the hope that it will be useful,\n", mobs_whoami);\
+    fputc('\n', stdout);\
+    fputs("This program is distributed in the hope that it will be useful,\n", stdout);\
     fputs("but WITHOUT ANY WARRANTY; without even the implied warranty\n", stdout);\
     fputs("of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n", stdout);\
     fputs("See the GNU General Public License for more details.\n", stdout);\
-    fputs("\n", stdout);\
+    fputc('\n', stdout);\
     fputs("You should have received a copy of the GNU General Public License\n", stdout);\
     fputs("('GPL') along with this program; if not, write to:\n", stdout);\
     fputs("\tFree Software Foundation, Inc.\n", stdout);\
     fputs("\t59 Temple Place, Suite 330\n", stdout);\
     fputs("\tBoston, MA 02111-1307  USA\n", stdout);\
+    fflush(stdout);\
+} while(0)
+#endif
+
+#ifndef WGPL_DISCLAIMER
+#define WGPL_DISCLAIMER() do {\
+    fwide(stdout, 1);\
+    fputws(L"This program is part of '"PROJECT"-"VERSION"'\n", stdout);\
+    fputwc(L'\n', stdout);\
+    fputws(L"This program is free software;\n", stdout);\
+    fputws(L"you can redistribute it and/or modify it under the terms of the\n", stdout);\
+    fputws(L"GNU General Public License as published by the Free Software Foundation;\n", stdout);\
+    fputws(L"either version 2 of the License, or (at your option) any later version.\n", stdout);\
+    fputwc(L'\n', stdout);\
+    fputws(L"This program is distributed in the hope that it will be useful,\n", stdout);\
+    fputws(L"but WITHOUT ANY WARRANTY; without even the implied warranty\n", stdout);\
+    fputws(L"of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n", stdout);\
+    fputws(L"See the GNU General Public License for more details.\n", stdout);\
+    fputwc(L'\n', stdout);\
+    fputws(L"You should have received a copy of the GNU General Public License\n", stdout);\
+    fputws(L"('GPL') along with this program; if not, write to:\n", stdout);\
+    fputws(L"\tFree Software Foundation, Inc.\n", stdout);\
+    fputws(L"\t59 Temple Place, Suite 330\n", stdout);\
+    fputws(L"\tBoston, MA 02111-1307  USA\n", stdout);\
     fflush(stdout);\
 } while(0)
 #endif
@@ -191,11 +215,30 @@ static inline void die (const char *mobs_format, ...) {
 
     ASSERT(mobs_format);
     
+    fwide(stdout, -1);
+
     va_start(mobs_args, mobs_format);
     vfprintf(stderr, mobs_format, mobs_args);
     va_end(mobs_args);
 
-    fputs("\n", stderr);
+    fflush(stderr);
+
+    exit(EXIT_FAILURE);
+}
+
+static inline void wdie (const wchar_t *, ...);
+static inline void wdie (const wchar_t *mobs_format, ...) {
+
+    va_list mobs_args;
+
+    WASSERT(mobs_format);
+
+    fwide(stdout, 1);
+    
+    va_start(mobs_args, mobs_format);
+    vfwprintf(stderr, mobs_format, mobs_args);
+    va_end(mobs_args);
+
     fflush(stderr);
 
     exit(EXIT_FAILURE);
@@ -219,28 +262,35 @@ in order to help the users on sending bug reports with good information ;)
 It outputs the project name and version for filling the bug report :)
 */
 #ifndef BUG
-#ifndef AUTHOR
 #define BUG() do {\
-    fputs("\n*** INTERNAL ERROR, please report so it can be fixed!\n",stderr);\
-    fprintf(stderr, "* Process %d aborting...\n", getpid());\
-    if (errno > 0) fprintf(stderr, "* errno <%d> (%s)\n", errno, strerror(errno));\
-    else           fputs("* (Undefined error) This is bad, dude...\n", stderr);\
-    fprintf(stderr, "* " PROJECT "-" VERSION " (" OBJNAME ") %s()@%s:%d\n\n", __func__, __FILE__, __LINE__);\
-    fflush(stderr);\
-    abort();\
-} while (0)
-#else
-#define BUG() do {\
-    fputs("\n*** INTERNAL ERROR, please report so it can be fixed!\n",stderr);\
-    fprintf(stderr, "* Process %d aborting...\n", getpid());\
-    if (errno > 0) fprintf(stderr, "* errno <%d> (%s)\n", errno, strerror(errno));\
-    else           fputs("* (Undefined error) This is bad, dude...\n", stderr);\
-    fprintf(stderr, "* " PROJECT "-" VERSION " (" OBJNAME ") %s()@%s:%d\n", __func__, __FILE__, __LINE__);\
-    fputs("Report bugs to " AUTHOR "\n\n", stderr);\
+    int mobs_errno=errno;\
+    fwide(stderr, -1);\
+    fputs("*** INTERNAL ERROR, please report so it can be fixed!\n",stderr);\
+    fprintf(stderr, "*** Process %d aborting...\n", getpid());\
+    fprintf(stderr, "*** errno <%d> (%s)\n", mobs_errno, strerror(mobs_errno));\
+    fputs("*** '"PROJECT"-"VERSION" (" OBJNAME ") ", stderr);\
+    fprintf(stderr, "%s()@%s:%d\n", __func__, __FILE__, __LINE__);\
+    if (strlen(AUTHOR))\
+        fputs("*** Report bug to "AUTHOR"\n", stderr);\
     fflush(stderr);\
     abort();\
 } while (0)
 #endif
+
+#ifndef WBUG
+#define WBUG() do {\
+    int mobs_errno=errno;\
+    fwide(stderr, 1);\
+    fputws(L"*** INTERNAL ERROR, please report so it can be fixed!\n",stderr);\
+    fwprintf(stderr, L"*** Process %d aborting...\n", getpid());\
+    fwprintf(stderr, L"*** errno <%d> (%s)\n", mobs_errno, strerror(mobs_errno));\
+    fputws(L"*** '"PROJECT"-"VERSION" (" OBJNAME ") ", stderr);\
+    fwprintf(stderr, L"%s()@%s:%d\n", __func__, __FILE__, __LINE__);\
+    if (wcslen(L"" AUTHOR ""))\
+        fputws(L"*** Report bug to "AUTHOR"\n", stderr);\
+    fflush(stderr);\
+    abort();\
+} while (0)
 #endif
 
 
@@ -248,6 +298,8 @@ It outputs the project name and version for filling the bug report :)
     This function shows the message (the format string, you know...)
 together with information about the current 'errno' value (strerror...)
 Just for convenience... The actual format may change...
+
+    'errno' is not changed.
 */
 #ifndef __MOBS_bang
 #define __MOBS_bang
@@ -259,15 +311,39 @@ static inline void bang (const char *mobs_format, ...) {
 
     ASSERT(mobs_format);
 
+    fwide(stderr, -1);
+    
     va_start(mobs_args, mobs_format);
     vfprintf(stderr, mobs_format, mobs_args);
     va_end(mobs_args);
 
-    fprintf(stderr, "\nerrno: <%d> %s\n", errno, errno?strerror(errno):"Undefined value!");
+    fprintf(stderr, "errno <%d> (%s)\n", mobs_errno, strerror(mobs_errno));
     fflush(stderr);
 
     errno=mobs_errno;
 }
+
+static inline void wbang (const wchar_t *, ...);
+static inline void wbang (const wchar_t *mobs_format, ...) {
+
+    va_list mobs_args;
+    int mobs_errno=errno;
+
+    WASSERT(mobs_format);
+
+    fwide(stderr, 1);
+    
+    va_start(mobs_args, mobs_format);
+    vfwprintf(stderr, mobs_format, mobs_args);
+    va_end(mobs_args);
+
+    fwprintf(stderr, L"errno <%d> (%s)\n", mobs_errno, strerror(mobs_errno));
+    fflush(stderr);
+
+    errno=mobs_errno;
+}
+
+
 #endif
 
 
@@ -287,20 +363,34 @@ something before 'BUG()'.
     Please note that if 'NDEBUG' is defined, the funcion does nothing, and
 that the 'T' macro is really an alias to 'SAY()'.
 
-    'errno' is guaranteed not to change.
+    'errno' is not changed.
 */
 #undef SAY
+#undef WSAY
 #ifndef NDEBUG
 #define SAY(mobs_format,...) do {\
     int mobs_errno=errno;\
-    fprintf(stderr, "%s [%d] ", OBJNAME, getpid());\
+    fwide(stderr, -1);\
+    fprintf(stderr, OBJNAME" [%d] ", getpid());\
     if (mobs_format) fprintf(stderr, mobs_format, ##__VA_ARGS__);\
-    fputs("\n", stderr);\
+    fputc('\n', stderr);\
+    fflush(stderr);\
+    errno=mobs_errno;\
+} while (0)
+#define WSAY(mobs_format,...) do {\
+    int mobs_errno=errno;\
+    fwide(stderr, 1);\
+    fwprintf(stderr, L""OBJNAME" [%d] ", getpid());\
+    if (mobs_format) fwprintf(stderr, mobs_format, ##__VA_ARGS__);\
+    fputwc('\n', stderr);\
     fflush(stderr);\
     errno=mobs_errno;\
 } while (0)
 #else
-#define SAY(mobs_format,...)
+#define SAY(mobs_format,...) do {} while(0)
+#define WSAY(mobs_format,...) do {} while(0)
 #endif
 #undef T
+#undef WT
 #define T() SAY("%s()@%s:%d", __func__, __FILE__, __LINE__)
+#define WT() WSAY(L"%s()@%s:%d", __func__, __FILE__, __LINE__)

@@ -1,11 +1,11 @@
 .PHONY: all clean distclean install pkg-config
 
 ifdef ENABLE_DEBUG
-_CPPFLAGS=-UNDEBUG
-_CFLAGS+=-g -O0 -Wall
+override _CPPFLAGS=-UNDEBUG
+override _CFLAGS+=-g -O0 -Wall -std=c99
 else
-_CPPFLAGS=-DNDEBUG
-_CFLAGS+=-O2
+override _CPPFLAGS=-DNDEBUG
+override _CFLAGS+=-O2 -std=c99
 endif
 
 ABIVERSION=1
