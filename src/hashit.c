@@ -3,7 +3,7 @@
  *  Filename: hashit.c
  *  Description: Generic hash library
  *
- *           Copyright (C) 2002-2006  David Gómez <david@pleyades.net>
+ *           Copyright (C) 2002-2007  David Gómez <david@pleyades.net>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,9 +25,10 @@
 #include <limits.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <errno.h>
+
 #include "hashit.h"
 #include "hfunctions.h"
-#include "mobs.h"
 
 
 /********************************************************** Structures *******/
