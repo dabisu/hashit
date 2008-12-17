@@ -75,6 +75,7 @@ struct hash_ops {
     void *  (*lookup)(hash_t, void *);
     int     (*destroy)(hash_t);
     void ** (*getkeys)(hash_t);
+    void ** (*getvalues)(hash_t);
 };
 
 /*****************************************************************************/
@@ -91,6 +92,7 @@ static int ch_replace(hash_t, void *, void *);
 static void *ch_lookup(hash_t, void *);
 static int ch_destroy(hash_t);
 static void **ch_getkeys(hash_t);
+static void **ch_getvalues(hash_t);
 
 struct hash_ops ch_ops={
 	.insert=ch_insert,
@@ -98,7 +100,8 @@ struct hash_ops ch_ops={
 	.replace=ch_replace,
 	.lookup=ch_lookup,
 	.destroy=ch_destroy,
-	.getkeys=ch_getkeys
+	.getkeys=ch_getkeys,
+	.getvalues=ch_getvalues
 };
 
 /* Open Address Hash */
@@ -108,6 +111,7 @@ static void *oa_lookup(hash_t, void *);
 static int oa_replace(hash_t, void *, void *);
 static int oa_destroy(hash_t);
 static void **oa_getkeys(hash_t);
+static void **oa_getvalues(hash_t);
 
 struct hash_ops oa_ops={
 	.insert=oa_insert,
@@ -115,7 +119,8 @@ struct hash_ops oa_ops={
 	.replace=oa_replace,
 	.lookup=oa_lookup,
 	.destroy=oa_destroy,
-	.getkeys=oa_getkeys
+	.getkeys=oa_getkeys,
+	.getvalues=oa_getvalues
 };
 
 
@@ -127,6 +132,7 @@ static void *ov_lookup(hash_t, void *);
 static int ov_replace(hash_t, void *, void *);
 static int ov_destroy(hash_t);
 static void **ov_getkeys(hash_t);
+static void **ov_getvalues(hash_t);
 
 struct hash_ops ov_ops={
 	.insert=ov_insert,
@@ -134,7 +140,8 @@ struct hash_ops ov_ops={
 	.replace=ov_replace,
 	.lookup=ov_lookup,
 	.destroy=ov_destroy,
-	.getkeys=ov_getkeys
+	.getkeys=ov_getkeys,
+	.getvalues=ov_getvalues	
 };
 
 
@@ -307,6 +314,14 @@ hashit_getkeys(hash_t htable)
 	ASSERT(htable);
 
 	return htable->h_ops->getkeys(htable);
+}
+
+
+void **hashit_getvalues(hash_t htable)
+{
+    ASSERT(htable);
+
+    return htable->h_ops->getvalues(htable);
 }
  
 
@@ -504,6 +519,37 @@ ch_getkeys(hash_t htable)
 	return keys;
 }
 
+/* Return a NULL terminated string of pointers to all hash table values */
+static void **ch_getvalues(hash_t htable)
+{
+    uint32_t idx;
+    struct elem *cursor;
+    void **values;
+    uint32_t vidx; 
+
+    values=malloc((htable->nelems+1) *sizeof(void *));
+    if (!values) {
+	errno=ENOMEM;
+	return NULL;
+    }
+    values[htable->nelems] = NULL;
+    vidx=0;
+
+    for (idx=0; idx < htable->tsize; idx++) {	
+
+	cursor=htable->cm.chtable[idx];
+	while (cursor!=NULL) {
+	    //SAY("Element %d in bucket %d, key %s value %s", kidx, idx, cursor->key, cursor->data);
+	    values[vidx]=cursor->data;
+	    vidx++;
+	    
+	    cursor=cursor->next;
+	}
+    }
+   
+    return values;
+}
+
 /*****************************************************************************/
 
 static int
@@ -658,6 +704,29 @@ oa_getkeys(hash_t htable)
 			keys[kidx++] = htable->cm.oatable[idx].key;
 	}
 	return keys;
+}
+
+/* Return a NULL terminated string of pointers to all hash table values */
+static void **oa_getvalues(hash_t htable)
+{
+    uint32_t	idx;
+    void	**values;
+    uint32_t	vidx; 
+
+    values = malloc ((htable->nelems + 1) * sizeof (void *));
+
+    if (values==NULL) {
+	errno=ENOMEM;
+	return NULL;
+    }
+    values[htable->nelems] = NULL;
+    vidx = 0;
+
+    for (idx = 0; idx < htable->tsize; idx++) {
+	if (htable->cm.oatable[idx].key!=NULL)
+	    values[vidx++] = htable->cm.oatable[idx].data;
+    }
+    return values;
 }
 
 /*****************************************************************************/
@@ -902,6 +971,36 @@ ov_getkeys(hash_t htable)
 	}
 
 	return keys;
+}
+
+/* Return a NULL terminated string of pointers to all hash table values */
+static void **ov_getvalues(hash_t htable)
+{
+    uint32_t idx;
+    uint32_t vidx; 
+    struct elem *cursor;
+    void **values;
+
+    values=malloc((htable->nelems+1) *sizeof(void *));
+    if (!values) {
+	errno=ENOMEM;
+	return NULL;
+    }
+    values[htable->nelems] = NULL;
+    vidx=0;
+
+    for (idx=0; idx < htable->tsize; idx++) {
+	cursor=&htable->cm.ov->ovtable[idx];
+	if (cursor->key==NULL) continue;
+	while (cursor!=NULL) {
+	    //SAY("Element %d in bucket %d, key %s value %s", kidx, idx, cursor->key, cursor->data);
+	    values[vidx]=cursor->data;
+	    vidx++;
+	    cursor=cursor->next;
+	}
+    }
+   
+    return values;
 }
 
 

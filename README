@@ -188,7 +188,29 @@ use the library:
     all the keys we've inserted in our table.
 
     Return value is a null terminated array containing all the keys in
-    the hash table, or NULL if a error has ocurred.
+    the hash table, or NULL if a error has ocurred. The returned array
+    must be freed by the caller.
+
+    Parameters
+    ----------
+
+    * htable:
+       Pointer to the hash table, this must be the value returned by the
+       hashit_create function.
+
+
+
+- void **hashit_getvalues (hash_t htable)
+
+    Description
+    -----------
+
+    This functions walks through the hash table and returns all the
+    data values inside it.
+
+    Return value is a null terminated array containing all the keys in
+    the hash table, or NULL if a error has ocurred. The returned array
+    must be freed by the caller.
 
     Parameters
     ----------

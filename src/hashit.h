@@ -24,6 +24,7 @@ void *hashit_lookup(hash_t, void *);
 int hashit_destroy(hash_t);
 /* Accesors */
 void **hashit_getkeys(hash_t);
+void **hashit_getvalues(hash_t);
 size_t hashit_tablesize(hash_t);
 size_t hashit_size(hash_t);
 

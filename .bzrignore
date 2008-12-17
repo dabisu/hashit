@@ -2,3 +2,5 @@ CMakeCache.txt
 CMakeFiles
 Makefile
 cmake_install.cmake
+libhashit*
+install_manifest.txt
