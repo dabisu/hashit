@@ -1,16 +1,26 @@
 Compiling & Installing Hashit
 =============================
 
-./0
-make
-su -c 'make install'
+	$ cmake . 
+	$ make
+	$ sudo make install
 
-This will install hashit in /usr/local. The 0 configuration scripts allow you
-to change installation directories Type './0 --help' for info about all
-options.
+	hashit now use the CMake building system.
 
-hashit includes a pkg-config file, so then you only need to use the
-pkg-config utility in the usual way to link you binary to hashit.
+	To install hashit with a different prefix, cmake needs to be
+	invoked with the proper environment variables, so to install
+	sakura in /usr, you should do:
+
+	$ cmake -DCMAKE_INSTALL_PREFIX=/usr .
+
+	Use CMAKE_BUILD_TYPE=Debug or CMAKE_BUILD_TYPE=Release if you
+	wish to select the build type. Default is Release.
+
+	By default hashit is installed /usr/local.
+
+	hashit includes a pkg-config file, therefore you only need to use the
+	pkg-config utility in the usual way to link your binary to hashit.
+
 
 
 David Gómez <david@pleyades.net>
