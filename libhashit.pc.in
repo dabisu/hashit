@@ -1,9 +1,0 @@
-prefix=@PREFIX@
-libdir=@LIBDIR@
-includedir=@INCDIR@
-
-Name: libhashit
-Description: Generic hash library
-Version: @VERSION@
-Libs: -L${libdir} -lhashit
-Cflags: -I${includedir}
