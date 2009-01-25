@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <assert.h>
 
 #include "hashit.h"
 #include "hfunctions.h"
@@ -229,7 +230,7 @@ hashit_create(uint32_t sizehint, size_t keysize, uint32_t (*hfunc)(unsigned char
 			break;    
 
 		default:
-				SAY("Unknown type");
+			//	SAY("Unknown type");
 				free(htable);
 				errno=EINVAL;
 				return NULL;
@@ -256,9 +257,9 @@ hashit_create(uint32_t sizehint, size_t keysize, uint32_t (*hfunc)(unsigned char
 int 
 hashit_insert(hash_t htable, void *key, void *data)
 {
-	ASSERT(htable);
-	ASSERT(key);
-	ASSERT(data);
+	assert(htable);
+	assert(key);
+	assert(data);
 
 	return htable->h_ops->insert(htable,key,data);
 }
@@ -267,8 +268,8 @@ hashit_insert(hash_t htable, void *key, void *data)
 int
 hashit_delete(hash_t htable, void *key) 
 {
-	ASSERT(htable);
-	ASSERT(key); 
+	assert(htable);
+	assert(key); 
 
 	return htable->h_ops->delete(htable, key);
 }
@@ -277,9 +278,9 @@ hashit_delete(hash_t htable, void *key)
 int
 hashit_replace(hash_t htable, void *key, void *newdata)
 {
-	ASSERT(htable);
-	ASSERT(key);
-	ASSERT(newdata);
+	assert(htable);
+	assert(key);
+	assert(newdata);
 
 	return htable->h_ops->replace(htable, key, newdata);
 }
@@ -288,8 +289,8 @@ hashit_replace(hash_t htable, void *key, void *newdata)
 void *
 hashit_lookup(hash_t htable, void *key)
 {
-	ASSERT(htable);
-	ASSERT(key);
+	assert(htable);
+	assert(key);
 
 	return htable->h_ops->lookup(htable, key);
 }
@@ -299,7 +300,7 @@ int
 hashit_destroy(hash_t htable)
 {
 	int ret;
-	ASSERT(htable); 
+	assert(htable); 
 
 	ret=htable->h_ops->destroy(htable);
 
@@ -311,7 +312,7 @@ hashit_destroy(hash_t htable)
 void **
 hashit_getkeys(hash_t htable)
 {
-	ASSERT(htable);
+	assert(htable);
 
 	return htable->h_ops->getkeys(htable);
 }
@@ -319,7 +320,7 @@ hashit_getkeys(hash_t htable)
 
 void **hashit_getvalues(hash_t htable)
 {
-    ASSERT(htable);
+    assert(htable);
 
     return htable->h_ops->getvalues(htable);
 }
