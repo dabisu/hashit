@@ -4,7 +4,7 @@ IF (COMMAND CMAKE_POLICY)
 ENDIF (COMMAND CMAKE_POLICY)	
 PROJECT (hashit)
 SET (AUTHOR "David Gómez Espinosa" INTERNAL "Author")
-SET (VERSION "0.9.5")
+SET (VERSION "0.9.6")
 
 INCLUDE (FindPkgConfig)
 
