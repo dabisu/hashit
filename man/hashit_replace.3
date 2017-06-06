@@ -1,0 +1,39 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_replace
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B int hashit_replace(hash_t \fIhtable\fB, void *\fIkey\fB void *\fInewvalue\fB);
+
+.SH DESCRIPTION
+The \fBhashit_replace\fR function replaces the data for the element associated to the key 'key' with
+the data pointer by 'newvalue'.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.TP
+.B key
+Pointer to a key value whose assocciated value will be changed.
+.TP
+.B newvalue
+Pointer to new data to be assigned to this key, if exists.
+.RE
+
+.SH RETURN VALUE
+Return value is 0 if the replace succeeded or -1 if replace failed.
+
+.SH ERRORS
+.B EFAULT\fR The \fIkey\fR could not be found in the hash table.
+
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_delete(3), hashit_lookup(3), 
+hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_tablesize(3), hashit_destroy(3)
+

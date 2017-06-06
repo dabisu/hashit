@@ -1,0 +1,35 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_getvalues
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B void **hashit_getvalues(hash_t \fIhtable\fB);
+
+.SH DESCRIPTION
+The \fBhashit_getvalues\fR function walks through the hash table and returns all the
+data values inside it.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.RE
+
+.SH RETURN VALUE
+Return value is a null terminated array containing all the data pointers in
+the hash table, or NULL if a error has ocurred. The returned array
+must be freed by the caller.
+
+.SH ERRORS
+.B ENOMEM\fR Not enough memory to allocate a new element.
+
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_delete(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_size(3), 
+hashit_tablesize(3), hashit_destroy(3)
+

@@ -1,0 +1,32 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_destroy
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B int hashit_destroy(hash_t \fIhtable\fB);
+
+.SH DESCRIPTION
+The \fBhashit_destroy\fR function destroys the hash table and free previously allocated memory. This function
+should be called when all the work with the hash table is finished and it
+won't be needed again.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.RE
+
+.SH RETURN VALUE
+Always returns 0.
+
+.SH ERRORS
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_delete(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_tablesize(3)
+

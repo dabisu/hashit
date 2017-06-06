@@ -1,0 +1,44 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_insert
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B int hashit_insert(hash_t \fIhtable\fB, void *\fIkey\fB, void *\fIdata\fB);
+
+.SH DESCRIPTION
+The \fBhashit_insert\fR function inserts a key/data pair in the hash table.
+.TP
+All the keys inserted in the table must have the size given at creation time, and all must have the same data type, if not, behavior is undefined.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.TP
+.B key
+Pointer to the key value. It must have been previously allocated
+by the application that is using the library.
+.TP
+.B value
+Pointer to the data value. It must have been previously allocated by
+the application that is using the library.
+.RE
+
+.SH RETURN VALUE
+Return value is 0 if insert succeeded and -1 if insert fails.
+
+.SH ERRORS
+.B EINVAL\fR The \fIkey\fR is already inserted in the hash table.
+.PP
+.B ENOMEM\fR Not enough memory to allocate a new element.
+
+.SH SEE ALSO
+hashit_create(3), hashit_delete(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_tablesize(3), hashit_destroy(3)
+

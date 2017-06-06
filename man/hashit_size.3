@@ -1,0 +1,31 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_size
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B size_t hashit_size(hash_t \fIhtable\fB);
+
+.SH DESCRIPTION
+The \fBhashit_size\fR function returns the number of elements in the hash table.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.RE
+
+.SH RETURN VALUE
+The number of elements in the hash table.
+
+.SH ERRORS
+
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_delete(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), 
+hashit_tablesize(3), hashit_destroy(3)
+

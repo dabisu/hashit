@@ -1,0 +1,36 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_lookup
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B int hashit_lookup(hash_t \fIhtable\fB, void *\fIkey\fB);
+
+.SH DESCRIPTION
+The \fBhashit_lookup\fR function searches an element in the hash table, using the key passed as parameter and returns the data associated to that key.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.TP
+.B key
+Pointer to a key value for the searched element
+.RE
+
+.SH RETURN VALUE
+Return value is a pointer to element data for the searched key and NULL 
+if the search operation fails.
+
+.SH ERRORS
+.B EFAULT\fR The \fIkey\fR could not be found in the hash table.
+
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_delete(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_tablesize(3), hashit_destroy(3)
+
