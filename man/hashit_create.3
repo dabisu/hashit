@@ -1,0 +1,67 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_create
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B hash_t hashit_create(uint32_t \fIsizehint\fB, size_t \fIkeysize\fB, uint32_t(*) \fIhfunc()\fB, int(*) \fIcfunc()\fB, unsigned int \fIflags\fB);
+
+.SH DESCRIPTION
+The \fBhashit_create\fR function creates a hash table which is returned as a hash_t type.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B sizehint
+It's used to give an aproximated desired value for the hash table, 
+the function calculates the real size of the table using this 
+parameter as a hint to the final value.
+.TP
+.B keysize
+This is the size for the data type used as a key in the hash table. 
+Keys are void *, so hashit needs to know how long they are. If key size 
+is 0, is assumed that keys are strings.
+.TP
+.B hfunc
+hfunc is a pointer to the hash function for the hash table. Typically 
+you want to put here the value NULL to use the default hash function. 
+Avaliable hash functions are BOB_HASH(Default) and ONEAT_HASH. You can 
+add your own hash function if you know what are you doing ;).
+.TP
+.B cfunc
+cfunc is the comparation function for the keys data. Semantics are the 
+same that in strcmp function. The function should return 0 if both keys 
+are equal, and a value different from zero if they are not.
+.TP
+.B flags
+flags can have the following values:
+.RS
+.TP
+.B CHAIN_H
+Hash table uses chaining for handling collisions.
+.TP
+.B OADDRESS_H
+Hash table uses open address hashing for handling collisions.
+.TP
+.B OVERFLOW_H
+Hash table uses an overflow area for handling collisions. 
+.TP
+If you're not sure about what collision handling your hash table should have, then use CHAIN_H.
+.RE
+.RE
+
+.SH RETURN VALUE
+Return value is a reference to the table just created or NULL when the table creation has failed.
+
+.SH ERRORS
+.B EINVAL\fR The \fIcfunc\fR provided was NULL, or \fIflags\fR was invalid.
+.PP
+.B ENOMEM\fR Could not allocated memory for the internal table.
+
+.SH SEE ALSO
+hashit_insert(3), hashit_delete(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_tablesize(3), hashit_destroy(3)
+

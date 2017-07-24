@@ -1,0 +1,45 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+libhashit \- generic hash library with diverse collision methods
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B hash_t hashit_create(uint32_t \fIsizehint\fB, size_t \fIkeysize\fB, uint32_t(*) \fIhfunc()\fB, int(*) \fIcfunc()\fB, unsigned int \fIflags\fB);
+.PP
+.B int hashit_insert(hash_t \fIhtable\fB, void *\fIkey\fB, void *\fIdata\fB)
+.PP
+.B int hashit_delete(hasht_t \fIhtable\fB, void *\fIkey\fB)
+.PP
+.B void *hashit_lookup(hash_t \fIhtable\fB, void *\fIkey\fB)
+.PP
+.B int hashit_replace(hash_t \fIhtable\fB, void *\fIkey\fB, void *\fInewvalue\fB)
+.PP
+.B void **hashit_getkeys(hash_t \fIhtable\fB)
+.PP
+.B void **hashit_getvalues(hash_t \fIhtable\fB)
+.PP
+.B size_t hashit_size(hash_t \fIhtable\fB)
+.PP
+.B size_t hashit_tablesize(hash_t \fIhtable\fB)
+.PP
+.B int hashit_destroy(hash_t \fIhtable\fB)
+
+.SH DESCRIPTION
+hashit is a generic hash library implemented in C which supports multiple collision handling methods. 
+.PP
+Nowadays not much work is going into it, but it's maintained :), just in case some bug comes out of nowhere.
+.PP
+Credit is due to Bob Jenkins, author of the default hash function used in hashit and which is available here along with a lot of material related to hashing.
+.PP
+
+.SH AUTHOR
+.TP
+David Gómez <david@pleyades.net>
+
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_delete(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_tablesize(3), hashit_destroy(3)
+

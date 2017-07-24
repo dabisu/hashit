@@ -1,0 +1,34 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_tablesize
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B size_t hashit_tablesize(hash_t \fIhtable\fB);
+
+.SH DESCRIPTION
+The \fBhashit_tablesize\fR function returns the hash table size. This has different meanings depending on the
+hash collision method used. For example, for chaining hash, it returns
+the number of buckets in the hash table, for open address its equal to
+the hash table size (maximum number of elements), for overflow hash it's
+the size of the main table without the overflow area.
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.RE
+
+.SH RETURN VALUE
+Returns the hash table size.
+
+.SH ERRORS
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_delete(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_destroy(3)
+

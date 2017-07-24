@@ -1,0 +1,37 @@
+.TH LIBHASHIT 3 "2017-06-05"
+
+.SH NAME
+hashit_delete
+
+.SH SYNOPSIS
+.B #include <hashit.h>
+.PP
+.B int hashit_delete(hash_t \fIhtable\fB, void *\fIkey\fB);
+
+.SH DESCRIPTION
+The \fBhashit_delete\fR function deletes a key/data pair that is inside the hash table,
+.TP
+.SS Parameters:
+.RS
+.TP
+.B htable
+Pointer to the hash table, this must be the value returned by the
+\fBhashit_create(3)\fR function.
+.TP
+.B key
+Pointer to the key value for the element that should be deleted from
+the hash table. The application has the duty to free the data
+associated to this key.
+.RE
+
+.SH RETURN VALUE
+Return value is 0 if hashit_delete succeeded and -1 if delete fails.
+
+.SH ERRORS
+.B EFAULT\fR The \fIkey\fR could not be found in the hash table.
+
+.SH SEE ALSO
+hashit_create(3), hashit_insert(3), hashit_lookup(3), 
+hashit_replace(3), hashit_getkeys(3), hashit_getvalues(3), hashit_size(3), 
+hashit_tablesize(3), hashit_destroy(3)
+

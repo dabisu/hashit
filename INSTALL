@@ -21,6 +21,9 @@ Compiling & Installing Hashit
 	Use -DINSTALL_PKGCONFIG_DIR=<path> to install the pkgconfig file to
 	'<path>/libhashit.pc' instead of the default.
 
+	Use -DINSTALL_MAN_DIR=<path> to install the man pages to <path>/man3/
+	instead of the default.
+
 	hashit includes a pkg-config file, therefore you only need to use the
 	pkg-config utility in the usual way to link your binary to hashit.
 
