@@ -13,10 +13,13 @@ Compiling & Installing Hashit
 
 	$ cmake -DCMAKE_INSTALL_PREFIX=/usr .
 
-	Use CMAKE_BUILD_TYPE=Debug or CMAKE_BUILD_TYPE=Release if you
+	Use -DCMAKE_BUILD_TYPE=Debug or -DCMAKE_BUILD_TYPE=Release if you
 	wish to select the build type. Default is Release.
 
 	By default hashit is installed /usr/local.
+
+	Use -DINSTALL_PKGCONFIG_DIR=<path> to install the pkgconfig file to
+	'<path>/libhashit.pc' instead of the default.
 
 	hashit includes a pkg-config file, therefore you only need to use the
 	pkg-config utility in the usual way to link your binary to hashit.

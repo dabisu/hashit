@@ -12,10 +12,12 @@ IF (NOT PKG_CONFIG_FOUND)
 	MESSAGE (FATAL_ERROR "pkg-config not found...")
 ENDIF (NOT PKG_CONFIG_FOUND)
 
+set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/pkgconfig"
+	CACHE PATH "Installation directory for pkgconfig (.pc) files")
+
 ADD_DEFINITIONS (-DDATADIR=\\\"${CMAKE_INSTALL_PREFIX}/share\\\")
 
 ADD_LIBRARY (hashit SHARED src/hashit.c src/hfunctions.c)
-ADD_DEPENDENCIES (hashit src/hashit.c src/hfunctions.c src/hashit.h src/hfunctions.h)
 
 FILE(WRITE libhashit.pc "prefix=${CMAKE_INSTALL_PREFIX}\n")	
 FILE(APPEND libhashit.pc "libdir=${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}\n")	
@@ -28,7 +30,7 @@ FILE(APPEND libhashit.pc "Cflags: -I${CMAKE_INSTALL_PREFIX}/include\n")
 
 INSTALL (TARGETS hashit LIBRARY DESTINATION lib${LIB_SUFFIX})	
 INSTALL (FILES src/hashit.h DESTINATION include)
-INSTALL (FILES libhashit.pc DESTINATION lib${LIB_SUFFIX}/pkg-config)
+INSTALL (FILES libhashit.pc DESTINATION ${INSTALL_PKGCONFIG_DIR})
 
 SET_TARGET_PROPERTIES (hashit PROPERTIES VERSION 1.0 SOVERSION 1)	
 SET (LIBRARY_OUTPUT_PATH src)
